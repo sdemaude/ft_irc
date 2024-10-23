@@ -6,10 +6,13 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:14:40 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/22 14:25:53 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/23 17:11:16 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include <iostream>
+#include <string>
+
+#include "../include/Server.hpp"
