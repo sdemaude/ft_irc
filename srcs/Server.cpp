@@ -6,7 +6,7 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:14 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/24 18:18:41 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/24 18:51:48 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,11 +47,11 @@ Server::~Server() {
 }
 
 int Server::loop() {
-	// Handle signals
+	// Handle CTRL+C signal
 	std::signal(SIGINT, Server::handle_signal);
 
 	// Create the epoll
-	this->_epoll_fd = epoll_create(BACKLOG); //TODO? change BACKLOG to a better value
+	this->_epoll_fd = epoll_create1(0);
 	if (this->_epoll_fd == -1) {
 		std::cerr << "Error: " << strerror(errno) << std::endl;
 		return EXIT_FAILURE;
@@ -59,6 +59,7 @@ int Server::loop() {
 	
 	// Add the server socket to the epoll
 	struct epoll_event ev;
+	
 	ev.events = EPOLLIN;
 	ev.data.fd = this->_socket_fd;
 	if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, this->_socket_fd, &ev) == -1) {
@@ -74,12 +75,12 @@ int Server::loop() {
 			std::cerr << "Error: " << strerror(errno) << std::endl;
 			return EXIT_FAILURE;
 		}
-
+		// Loop through the events
 		for (int i = 0; i < nfds; i++) {
 			if (events[i].data.fd == this->_socket_fd) {
-				// Accept the connection and add the client to the epoll using the Client class
+				// Accept the connection and add the client using the Client class map
 			} else {
-				// Read the message
+				// Read the message using recv()
 				//	- If the message is empty, close the connection and remove the client from the epoll
 				//	- If the message is not empty, parse it and send the response
 			}
