@@ -6,14 +6,13 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:14 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/23 17:27:41 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/24 13:30:59 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Server.hpp"
 
 Server::Server(std::string port, std::string password) : _password(password) {
-
     // Check if port is a number
     try {
         _port = std::stoi(port);
@@ -28,11 +27,70 @@ Server::Server(std::string port, std::string password) : _password(password) {
 		return;
 	}
 
-	//check if password is empty ?
+	//TODO? check if password is empty
 
-	//init server and create socket
+	// Set the address structure
+	memset(&this->_addr, 0, sizeof(this->_addr));
+	this->_addr.sin_family = AF_INET;
+	this->_addr.sin_addr.s_addr = INADDR_ANY;
+	this->_addr.sin_port = htons(this->_port);
+
+	// Start the server
+	if (this->start() || this->loop())
+		return;
 }
 
 Server::~Server() {
-	//close socket ?
+	// Close the socket
+	close(this->_socket_fd);
+	std::cout << "Socket closed" << std::endl;
+}
+
+int Server::loop() {
+	//TODO handle and accept connection with epoll
+	this->_epoll_fd = epoll_create(BACKLOG); //TODO? change BACKLOG to a better value
+	if (this->_epoll_fd == -1) {
+		std::cerr << "Error: " << strerror(errno) << std::endl;
+		return EXIT_FAILURE;
+	}
+	
+
+
+
+	return EXIT_SUCCESS;
+}
+
+int Server::start() {
+	// Create the socket
+	this->_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (this->_socket_fd == -1) {
+		std::cerr << "Error: " << strerror(errno) << std::endl;
+		return EXIT_FAILURE;
+	}
+	std::cout << "Socket created" << std::endl;
+
+	// Allow to reuse the port
+	int status = setsockopt(this->_socket_fd, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)); // TODO? add SO_REUSEPORT if needed
+	if (status == -1) {
+		std::cerr << "Error: " << strerror(errno) << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	// Bind the socket
+	status = bind(this->_socket_fd, (struct sockaddr *)&this->_addr, sizeof(this->_addr));
+	if (status == -1) {
+		std::cerr << "Error: " << strerror(errno) << std::endl;
+		return EXIT_FAILURE;
+	}
+	std::cout << "Socket binded on port : " << this->_port << std::endl;
+
+	// Listen on the socket
+	status = listen(this->_socket_fd, BACKLOG);
+	if (status == -1) {
+		std::cerr << "Error: " << strerror(errno) << std::endl;
+		return EXIT_FAILURE;
+	}
+	std::cout << "Socket listening on port : " << this->_port << std::endl;
+
+	return EXIT_SUCCESS;
 }

@@ -6,13 +6,32 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:14:40 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/23 17:11:16 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/24 14:16:08 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include <iostream>
-#include <string>
+// C headers
+#include <sys/epoll.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <errno.h>
+#include <poll.h>
+#include <unistd.h>
 
+// C++ headers
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
+#include <map>
+#include <string>
+#include <vector>
+
+// Custom headers
+#include "../include/Client.hpp"
 #include "../include/Server.hpp"
+
+// Constants
+#define BACKLOG 10
