@@ -6,13 +6,13 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:14 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/24 13:30:59 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/24 18:18:41 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Server.hpp"
 
-Server::Server(std::string port, std::string password) : _password(password) {
+Server::Server(std::string port, std::string password) : _password(password){
     // Check if port is a number
     try {
         _port = std::stoi(port);
@@ -47,15 +47,46 @@ Server::~Server() {
 }
 
 int Server::loop() {
-	//TODO handle and accept connection with epoll
+	// Handle signals
+	std::signal(SIGINT, Server::handle_signal);
+
+	// Create the epoll
 	this->_epoll_fd = epoll_create(BACKLOG); //TODO? change BACKLOG to a better value
 	if (this->_epoll_fd == -1) {
 		std::cerr << "Error: " << strerror(errno) << std::endl;
 		return EXIT_FAILURE;
 	}
 	
+	// Add the server socket to the epoll
+	struct epoll_event ev;
+	ev.events = EPOLLIN;
+	ev.data.fd = this->_socket_fd;
+	if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, this->_socket_fd, &ev) == -1) {
+		std::cerr << "Error: " << strerror(errno) << std::endl;
+		return EXIT_FAILURE;
+	}
 
+	// Wait for events and connect clients using the Client class
+	struct epoll_event events[MAX_EVENTS];
+	while (running) {
+		int nfds = epoll_wait(this->_epoll_fd, events, MAX_EVENTS, -1);
+		if (nfds == -1) {
+			std::cerr << "Error: " << strerror(errno) << std::endl;
+			return EXIT_FAILURE;
+		}
 
+		for (int i = 0; i < nfds; i++) {
+			if (events[i].data.fd == this->_socket_fd) {
+				// Accept the connection and add the client to the epoll using the Client class
+			} else {
+				// Read the message
+				//	- If the message is empty, close the connection and remove the client from the epoll
+				//	- If the message is not empty, parse it and send the response
+			}
+		}
+	}
+
+	//TODO? close all the clients if the server is stopped
 
 	return EXIT_SUCCESS;
 }
@@ -93,4 +124,11 @@ int Server::start() {
 	std::cout << "Socket listening on port : " << this->_port << std::endl;
 
 	return EXIT_SUCCESS;
+}
+
+void Server::handle_signal(int signal) {
+	if (signal == SIGINT) {
+		running = false;
+		std::cout << "Server stopped, " << signal << " received" << std::endl;
+	}
 }

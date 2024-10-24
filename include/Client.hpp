@@ -6,7 +6,7 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 11:37:37 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/24 12:01:17 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/24 17:23:53 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 class Client
 {
 	public:
-		Client();
+		Client(int fd);
 		~Client();
 		//TODO? getter and setter for _fd and _ip_addr
 

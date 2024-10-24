@@ -6,13 +6,13 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 11:37:40 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/24 11:50:31 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/24 17:23:46 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Client.hpp"
 
-Client::Client() {
+Client::Client(int fd) : _fd(fd){
 }
 
 Client::~Client() {
