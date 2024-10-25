@@ -6,7 +6,7 @@
 #    By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/22 13:41:02 by sdemaude          #+#    #+#              #
-#    Updated: 2024/10/22 14:01:35 by sdemaude         ###   ########.fr        #
+#    Updated: 2024/10/25 10:56:40 by sdemaude         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,7 +15,9 @@ CXX 		= c++
 CXXFLAGS 	= -Wall -Wextra -Werror -g -std=c++98
 
 SRCDIR		= srcs
-SRCFILE		= main
+SRCFILE		= main\
+			  Server\
+			  Client
 
 OBJDIR		= objs
 OBJS 		= $(addprefix $(OBJDIR)/,$(addsuffix .o,$(SRCFILE)))

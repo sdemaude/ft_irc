@@ -6,7 +6,7 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:14:40 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/24 18:04:27 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/25 10:57:16 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,13 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <poll.h>
 #include <unistd.h>
 
 // C++ headers
 #include <csignal>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
