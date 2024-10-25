@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:37 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/25 14:44:58 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/25 15:20:18 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ class Server
 		int			loop();
 
 		void		handle_connection();
-		void		handle_message(int fd);	
+		void		handle_message(int fd);
 
 	private:
 		static bool				_running;

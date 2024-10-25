@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:14 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/25 14:43:59 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/25 15:47:39 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,39 @@ void Server::handle_connection() {
 	std::cout << "Unregistered client connected with IP : " << client_ip << std::endl;
 }
 
+void	Server::handle_message(int fd) {
+	// Read the message using recv()
+	char buffer[BUFSIZ];
+	memset(&buffer, '\0', sizeof(buffer));
+	int bytes = recv(fd, buffer, sizeof(buffer), 0);
+	if (bytes <= 0) {
+		if (bytes == 0)
+			perror("Connection closed");
+		else
+			perror("recv");
+		close(fd);
+		//TODO? remove the client from the map
+		return ;
+	}
+
+	// If the message is not empty, parse it and send the response
+	else {
+		// Renvoie le message reçu à toutes les sockets connectées à part celle du serveur et celle qui l'a envoyée
+		char msg_to_send[BUFSIZ];
+		memset(&msg_to_send, '\0', sizeof(msg_to_send));
+		snprintf(msg_to_send, sizeof(msg_to_send), "[%d] : %s", fd, buffer);
+		for (std::map<int, Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++) {
+			if (it->first != this->_socket_fd && it->first != fd) {
+				if (send(it->first, msg_to_send, strlen(msg_to_send), 0) == -1) {
+					perror("send");
+					close(it->first);
+					//TODO? remove the client from the map
+				}
+			}
+		}
+	}
+}
+
 int Server::loop() {
 	// Handle CTRL+C signal
 	std::signal(SIGINT, Server::handle_signal);
@@ -108,7 +141,8 @@ int Server::loop() {
 			if (events[i].data.fd == this->_socket_fd) {
 				handle_connection();
 			} else {
-				//std::cout << "Client trying to send a message" << std::endl;
+				std::cout << "Client trying to send a message" << std::endl;
+				handle_message(events[i].data.fd);
 				// Read the message using recv()
 				//	- If the message is not empty, parse it and send the response
 			}
