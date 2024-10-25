@@ -6,7 +6,7 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:14 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/25 14:08:35 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/25 14:43:59 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 bool Server::_running = true;
 
-Server::Server(short port, std::string password) : _port(port), _password(password){
+Server::Server(short port, std::string password) : _port(port), _password(password) {
    	// Set the address structure
 	memset(&this->_addr, 0, sizeof(this->_addr));
 	this->_addr.sin_family = AF_INET;

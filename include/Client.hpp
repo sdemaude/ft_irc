@@ -6,13 +6,13 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 11:37:37 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/25 14:03:06 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/25 14:44:46 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include "include.hpp"
+#include "ft_irc.hpp"
 
 class Client
 {
