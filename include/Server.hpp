@@ -6,7 +6,7 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:37 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/25 11:05:09 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/25 13:23:43 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ class Server
 		int			init();
 		int			loop();
 
+		void		handle_connection();
 		void		handle_message(int fd);	
 
 	private:

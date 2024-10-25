@@ -6,7 +6,7 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:14 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/25 11:28:56 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/25 14:08:35 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,51 @@ Server::~Server() {
 	std::cout << "Server stopped after receiving SIGINT" << std::endl;
 }
 
+void Server::handle_connection() {
+	std::cout << "New client trying to connect" << std::endl;
+
+	// Accept the connection
+	struct sockaddr_in client_addr;
+	socklen_t client_addr_len = sizeof(client_addr);
+	int client_fd = accept(this->_socket_fd, (struct sockaddr *)&client_addr, &client_addr_len);
+	if (client_fd == -1) {
+		perror("accept");
+		return;
+	}
+
+	// Convert the client's IP address to a string
+	char client_ip[INET_ADDRSTRLEN];
+	if (inet_ntop(AF_INET, &client_addr.sin_addr, client_ip, sizeof(client_ip)) == NULL) {
+		perror("inet_ntop");
+		close(client_fd);
+		return;
+	}
+
+	// Add the client to the map
+	Client client(client_fd, client_ip);
+	this->_clients.insert(std::pair<int, Client>(client_fd, client));
+
+	// Set the client to non-blocking
+	int status = fcntl(client_fd, F_SETFL, O_NONBLOCK);
+	if (status == -1) {
+		perror("fcntl");
+		close(client_fd);
+		return;
+	}
+
+	// Add the client to the epoll
+	struct epoll_event ev;
+	ev.events = EPOLLIN;
+	ev.data.fd = client_fd;
+	status = epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, client_fd, &ev);
+	if (status == -1) {
+		perror("epoll_ctl");
+		close(client_fd);
+		return;
+	}
+
+	std::cout << "Unregistered client connected with IP : " << client_ip << std::endl;
+}
 
 int Server::loop() {
 	// Handle CTRL+C signal
@@ -47,7 +92,6 @@ int Server::loop() {
 	
 	// Add the server socket to the epoll
 	struct epoll_event ev;
-	
 	ev.events = EPOLLIN;
 	ev.data.fd = this->_socket_fd;
 	if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, this->_socket_fd, &ev) == -1)
@@ -62,12 +106,9 @@ int Server::loop() {
 		// Loop through the events
 		for (int i = 0; i < nfds; i++) {
 			if (events[i].data.fd == this->_socket_fd) {
-				std::cout << "New client trying to connect" << std::endl;
-				// Accept the connection and add the client using the Client class map and set the client to non-blocking
-				//	- If the password is correct, add the client to the epoll
-				//	- If the password is incorrect, close the connection
+				handle_connection();
 			} else {
-				std::cout << "Client trying to send a message" << std::endl;
+				//std::cout << "Client trying to send a message" << std::endl;
 				// Read the message using recv()
 				//	- If the message is not empty, parse it and send the response
 			}
