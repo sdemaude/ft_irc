@@ -6,7 +6,7 @@
 /*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:37 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/26 11:40:15 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/26 11:47:43 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,11 +31,11 @@ class Server
 		std::string	read_message(int fd);
 		void		parse_message(std::map< int, Client >::iterator iter, std::string message);
 		// Mode
-		void		mode_I();
-		void		mode_T();
-		void		mode_K();
-		void		mode_O();
-		void		mode_L();
+		void		mode_I(Channel &channel);
+		void		mode_T(Channel &channel, std::string &topic);
+		void		mode_K(Channel &channel, std::string &password);
+		void		mode_O(Channel &channel, Client &client);
+		void		mode_L(Channel &channel, int limit);
 
 	private:
 		static bool						_running;

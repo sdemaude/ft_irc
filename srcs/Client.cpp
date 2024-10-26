@@ -6,7 +6,7 @@
 /*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 11:37:40 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/26 11:42:33 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/26 11:48:09 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,4 +22,12 @@ Client::~Client() {
 
 std::string	Client::get_buffer() {
     return this->_buffer;
+}
+
+int Client::getFd() const {
+    return this->_fd;
+}
+
+bool operator<(const Client &a, const Client &b) {
+    return a.getFd() < b.getFd();
 }

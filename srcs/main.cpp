@@ -6,11 +6,11 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 13:55:18 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/25 10:19:35 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/26 10:10:26 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/include.hpp"
+#include "../include/ft_irc.hpp"
 
 int main(int argc, char **argv) {
 	// Check if the number of arguments is correct
@@ -36,7 +36,12 @@ int main(int argc, char **argv) {
 	//TODO? check if password is empty
 
 	// Create the server
-	Server server(port, argv[2]);
+	try {
+		Server server(port, argv[2]);
+	} catch (std::exception &e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+		return EXIT_FAILURE;
+	}
 
 	return EXIT_SUCCESS;
 }

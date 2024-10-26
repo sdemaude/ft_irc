@@ -6,7 +6,7 @@
 /*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:14 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/26 11:42:59 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/26 11:48:23 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ Server::Server(short port, std::string password) : _port(port), _password(passwo
 
 	// Start the server
 	if (this->init() || this->loop())
-		return;
+		throw std::runtime_error("Server failed to start");
 }
 
 Server::~Server() {
@@ -164,8 +164,8 @@ int Server::loop() {
 	struct epoll_event events[MAX_EVENTS];
 	while (Server::_running) {
 		int nfds = epoll_wait(this->_epoll_fd, events, MAX_EVENTS, -1);
-		if (nfds == -1)
-			return (perror("epoll_wait"), EXIT_FAILURE);
+		//if (nfds == -1)
+			//return (perror("epoll_wait"), EXIT_FAILURE);
 		// Loop through the events
 		for (int i = 0; i < nfds; i++) {
 			if (events[i].data.fd == this->_socket_fd) {

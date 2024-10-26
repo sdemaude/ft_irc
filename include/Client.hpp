@@ -6,7 +6,7 @@
 /*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 11:37:37 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/26 11:42:22 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/26 11:47:13 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,11 @@ class Client
 		std::string	get_buffer();
 		//TODO? getter and setter for _fd and _ip_addr
 
+		int getFd() const;
+		
+
 	private:
-		bool		_registered;
+		bool		_registered; // false by default
 		int			_fd;
 		std::string	_ip_adrr;
 		std::string	_buffer;
@@ -34,3 +37,5 @@ class Client
 
 		//TODO?	_password _hostname	_servername _mode _channels
 };
+
+bool operator<(const Client &a, const Client &b);

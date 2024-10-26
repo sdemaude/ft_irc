@@ -6,7 +6,7 @@
 /*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:14:40 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/26 10:38:33 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/26 11:47:35 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@
 #include <vector>
 
 // Custom headers
+#include "../include/Channel.hpp"
 #include "../include/Client.hpp"
 #include "../include/Server.hpp"
 
