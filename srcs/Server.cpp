@@ -6,7 +6,7 @@
 /*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:14 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/26 15:24:43 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/26 16:31:10 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,48 +175,52 @@ void	Server::parse_command(Client &client, std::string prefix, std::string comma
 	//TODO? check if the command is valid
 
 	if (command == "PASS") {
-		//TODO? check if the password is correct
+		// client, password
 	}
 
 	else if (command == "NICK") {
-
+		// client, nickname
 	}
 
 	else if (command == "USER") {
-
+		// client, username, hostname, realname
 	}
 
 	else if (command == "PRIVMSG") {
-
+		// client, target, message
 	}
 
 	else if (command == "PING") {
-
+		// client
 	}
 
 	else if (command == "QUIT") {
-
+		// client
 	}
 
 	// Channel
 	else if (command == "JOIN") {
+		// client, channel, password
+	}
 
+	else if (command == "PART") {
+		// client, channel
 	}
 
 	else if (command == "INVITE") {
-
+		// client, target, channel
 	}
 
 	else if (command == "KICK") {
-
+		// client, channel, target
 	}
 
 	else if (command == "TOPIC") {
-
+		// client, channel, topic
 	}
 
 	else if (command == "MODE") {
-
+		// client, channel, mode, mode parameter or empty (or -1 for l)
 	}
 }
 
