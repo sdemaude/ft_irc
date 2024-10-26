@@ -6,7 +6,7 @@
 /*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:14 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/25 17:28:44 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/26 11:42:59 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,36 +82,66 @@ void Server::handle_connection() {
 }
 
 void	Server::handle_message(int fd) {
-	// Read the message using recv()
-	char buffer[BUFSIZ];
-	memset(&buffer, '\0', sizeof(buffer));
-	int bytes = recv(fd, buffer, sizeof(buffer), 0);
-	if (bytes <= 0) {
-		if (bytes == 0)
-			perror("Connection closed");
-		else
-			perror("recv");
-		close(fd);
-		//TODO? remove the client from the map
-		return ;
-	}
+	std::string	message = read_message(fd);
+	if (message == "") return;
+	std::cout << "[" << fd << "]   " << "Message received : " << message << std::endl;
 
-	// If the message is not empty, parse it and send the response
-	else {
-		// Renvoie le message reçu à toutes les sockets connectées à part celle du serveur et celle qui l'a envoyée
-		char msg_to_send[BUFSIZ];
-		memset(&msg_to_send, '\0', sizeof(msg_to_send));
-		snprintf(msg_to_send, sizeof(msg_to_send), "[%d] : %s", fd, buffer);
-		for (std::map<int, Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++) {
-			if (it->first != this->_socket_fd && it->first != fd) {
-				if (send(it->first, msg_to_send, strlen(msg_to_send), 0) == -1) {
-					perror("send");
-					close(it->first);
-					//TODO? remove the client from the map
-				}
-			}
-		}
+	parse_message(this->_clients.find(fd), message);
+}
+
+std::string	Server::read_message(int fd) {
+	char		buffer[BUFFER_SIZE];
+	std::string	message = "";
+
+	memset(&buffer, '\0', BUFFER_SIZE);
+	while (1) {
+		int	byte_read = recv(fd, buffer, BUFFER_SIZE, 0);
+
+		if (byte_read <= 0)
+			return "";
+
+		buffer[byte_read] = '\0';
+		message += buffer;
+
+		if (byte_read < BUFFER_SIZE || buffer[BUFFER_SIZE - 1] == '\n')
+			return message;
 	}
+}
+
+/* Chaque message IRC peut consister en jusqu’à trois parties principales :
+ - le préfixe (FACULTATIF),
+ - la commande,
+ - les paramètres de commande (maximum de quinze (15)).
+Le préfixe, la commande, et tous les paramètres sont chacun séparés par un 
+caractère ASCII espace (0x20).
+
+La présence d’un préfixe est indiquée par un seul caractère ASCII 
+deux-points (':', 0x3a) en tête, qui DOIT être le premier caractère du 
+message lui-même. Il DOIT n’y avoir AUCUN trou (espace) entre le deux-points 
+et le préfixe. Le préfixe est utilisé par les serveurs pour indiquer la 
+vraie origine du message. Si le préfixe manque dans le message, il est 
+supposé avoir été généré sur la connexion d’où il a été reçu. Les clients NE 
+DEVRAIENT PAS utiliser un préfixe lors de l’envoi d’un message ; si ils en 
+utilisent un, le seul préfixe valide est le pseudonyme enregistré associé au 
+client.
+
+La commande DOIT être une commande IRC valide ou un nombre de trois (3) 
+chiffres représentés en texte ASCII.
+
+Les messages IRC sont toujours des lignes de caractères terminées par une paire 
+retour chariot-saut à la ligne (CR-LF, Carriage Return - Line Feed) et ces 
+messages NE DEVRONT PAS excéder 512 caractères, en comptant tous les caractères 
+y compris le CR-LF de queue. Donc, 510 caractères maximum sont alloués pour la 
+commande et ses paramètres. Il n’y a aucune disposition pour la continuation 
+des lignes du message. Voir à la section 6 des précisions sur les mises en 
+œuvre actuelles.
+ */
+void	Server::parse_message(std::map< int, Client >::iterator iter, std::string message) {
+	std::string	prefix = "";
+	std::string	command = "";
+	std::string	params = "";
+
+	message = this->_clients[iter->first].get_buffer() + message;
 }
 
 int Server::loop() {
@@ -122,7 +152,7 @@ int Server::loop() {
 	this->_epoll_fd = epoll_create1(0);
 	if (this->_epoll_fd == -1)
 		return (perror("epoll_create1"), EXIT_FAILURE);
-	
+
 	// Add the server socket to the epoll
 	struct epoll_event ev;
 	ev.events = EPOLLIN;
