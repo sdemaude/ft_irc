@@ -6,7 +6,7 @@
 /*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 11:37:37 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/26 11:47:13 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/26 13:39:07 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@ class Client
 		~Client();
 
 		std::string	get_buffer();
+		void		clear_buffer();
+		void		set_buffer(std::string buffer);
 		//TODO? getter and setter for _fd and _ip_addr
 
 		int getFd() const;

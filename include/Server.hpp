@@ -6,7 +6,7 @@
 /*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:37 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/26 11:47:43 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/26 14:51:17 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,8 @@ class Server
 		void		handle_connection();
 		void		handle_message(int fd);
 		std::string	read_message(int fd);
-		void		parse_message(std::map< int, Client >::iterator iter, std::string message);
+		void		parse_message(Client &client, std::string message);
+		void		parse_command(Client &client, std::string prefix, std::string command, std::string params);
 		// Mode
 		void		mode_I(Channel &channel);
 		void		mode_T(Channel &channel, std::string &topic);

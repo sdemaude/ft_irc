@@ -6,7 +6,7 @@
 /*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:14 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/26 11:48:23 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/26 15:19:10 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,9 +84,8 @@ void Server::handle_connection() {
 void	Server::handle_message(int fd) {
 	std::string	message = read_message(fd);
 	if (message == "") return;
-	std::cout << "[" << fd << "]   " << "Message received : " << message << std::endl;
 
-	parse_message(this->_clients.find(fd), message);
+	parse_message(this->_clients.find(fd)->second, message);
 }
 
 std::string	Server::read_message(int fd) {
@@ -97,51 +96,128 @@ std::string	Server::read_message(int fd) {
 	while (1) {
 		int	byte_read = recv(fd, buffer, BUFFER_SIZE, 0);
 
-		if (byte_read <= 0)
+		if (byte_read < 0)
 			return "";
 
 		buffer[byte_read] = '\0';
 		message += buffer;
 
-		if (byte_read < BUFFER_SIZE || buffer[BUFFER_SIZE - 1] == '\n')
+		if (byte_read < BUFFER_SIZE)
 			return message;
 	}
 }
 
-/* Chaque message IRC peut consister en jusqu’à trois parties principales :
- - le préfixe (FACULTATIF),
- - la commande,
- - les paramètres de commande (maximum de quinze (15)).
-Le préfixe, la commande, et tous les paramètres sont chacun séparés par un 
-caractère ASCII espace (0x20).
+static std::vector<std::string>	split_string(std::string str, char delimiter) {
+	std::vector<std::string>	string_splitted;
+	size_t						start = 0;
+	size_t						end = str.find(delimiter);
 
-La présence d’un préfixe est indiquée par un seul caractère ASCII 
-deux-points (':', 0x3a) en tête, qui DOIT être le premier caractère du 
-message lui-même. Il DOIT n’y avoir AUCUN trou (espace) entre le deux-points 
-et le préfixe. Le préfixe est utilisé par les serveurs pour indiquer la 
-vraie origine du message. Si le préfixe manque dans le message, il est 
-supposé avoir été généré sur la connexion d’où il a été reçu. Les clients NE 
-DEVRAIENT PAS utiliser un préfixe lors de l’envoi d’un message ; si ils en 
-utilisent un, le seul préfixe valide est le pseudonyme enregistré associé au 
-client.
+	while (end != std::string::npos) {
+		string_splitted.push_back(str.substr(start, end - start));
+		start = end + 1;
+		end = str.find(delimiter, start);
+	}
 
-La commande DOIT être une commande IRC valide ou un nombre de trois (3) 
-chiffres représentés en texte ASCII.
+	string_splitted.push_back(str.substr(start, str.size() - start));
 
-Les messages IRC sont toujours des lignes de caractères terminées par une paire 
-retour chariot-saut à la ligne (CR-LF, Carriage Return - Line Feed) et ces 
-messages NE DEVRONT PAS excéder 512 caractères, en comptant tous les caractères 
-y compris le CR-LF de queue. Donc, 510 caractères maximum sont alloués pour la 
-commande et ses paramètres. Il n’y a aucune disposition pour la continuation 
-des lignes du message. Voir à la section 6 des précisions sur les mises en 
-œuvre actuelles.
- */
-void	Server::parse_message(std::map< int, Client >::iterator iter, std::string message) {
-	std::string	prefix = "";
-	std::string	command = "";
-	std::string	params = "";
+	return string_splitted;
+}
 
-	message = this->_clients[iter->first].get_buffer() + message;
+void	Server::parse_message(Client &client, std::string message) {
+	message = client.get_buffer() + message;
+	std::cout << "[" << client.getFd() << "] Message received : " << message << std::endl;
+
+	client.clear_buffer();
+
+	std::vector<std::string>	splitted_message = split_string(message, '\n');
+
+	for (size_t i = 0; i < splitted_message.size(); i++) {
+		if (splitted_message[i].find("\r\n") == std::string::npos) {
+			client.set_buffer(splitted_message[i]);
+			return ;
+		}
+
+		splitted_message[i].resize(splitted_message[i].size() - 2);
+		if (splitted_message[i].size() == 0)
+			continue;
+		
+		std::string					prefix = "";
+		std::string					command = "";
+		std::string					params = "";
+		std::vector<std::string>	splitted_command = split_string(splitted_message[i], ' ');
+
+		if (splitted_command.size() == 0)
+			continue;
+
+		size_t	j = 0;
+
+		if (splitted_command[j][0] == ':')
+			prefix = splitted_command[j++];
+
+		if (splitted_command.size() > j)
+			command = splitted_command[j++];
+
+		if (splitted_command.size() > j) {
+			params = splitted_command[j++];
+			while (splitted_command.size() > j)
+				params += " " + splitted_command[j++];
+		}
+
+		this->parse_command(client, prefix, command, params);
+	}
+}
+
+void	Server::parse_command(Client &client, std::string prefix, std::string command, std::string params) {
+	std::cout << "[" << client.getFd() << "] Command received : " << command << std::endl;
+	std::cout << "[" << client.getFd() << "] Params received : " << params << std::endl;
+
+	//TODO? check if the client is registered
+	//TODO? check if the command is valid
+
+	if (command == "PASS") {
+		//TODO? check if the password is correct
+	}
+
+	else if (command == "NICK") {
+
+	}
+
+	else if (command == "USER") {
+
+	}
+
+	else if (command == "PRIVMSG") {
+
+	}
+
+	else if (command == "PING") {
+
+	}
+
+	else if (command == "QUIT") {
+
+	}
+
+	// Channel
+	else if (command == "JOIN") {
+
+	}
+
+	else if (command == "INVITE") {
+
+	}
+
+	else if (command == "KICK") {
+
+	}
+
+	else if (command == "TOPIC") {
+
+	}
+
+	else if (command == "MODE") {
+
+	}
 }
 
 int Server::loop() {
