@@ -6,7 +6,7 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 10:11:43 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/26 11:20:36 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/26 15:20:01 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,14 @@ Channel::Channel() : _invite_only(false), _limit(-1), _topic(""), _password(""),
 
 Channel::~Channel() {
 }
+
+void Channel::sendToAll(std::string &message) {
+	// send the message to all clients in the channel
+}
+
+//void Channel::sendToOthers(std::string &message, Client &client) {
+	// send the message to all clients in the channel except the client
+//}
 
 bool Channel::getInviteOnly() const {
     return this->_invite_only;
