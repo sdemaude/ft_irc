@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   include.hpp                                        :+:      :+:    :+:   */
+/*   ft_irc.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:14:40 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/25 13:38:52 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/26 10:16:44 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@
 #include <vector>
 
 // Custom headers
+#include "../include/Channel.hpp"
 #include "../include/Client.hpp"
 #include "../include/Server.hpp"
 
