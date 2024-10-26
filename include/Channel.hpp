@@ -6,7 +6,7 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:47:27 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/26 11:21:18 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/26 14:45:24 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ class Channel
 		Channel();
 		~Channel();
 
+		void					sendToAll(std::string &message);
 		// Getters and setters
 		bool					getInviteOnly() const;
 		void					setInviteOnly(bool invite_only);

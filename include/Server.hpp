@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
+/*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:37 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/26 11:47:43 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/26 14:51:03 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,9 @@
 class Client;
 class Channel;
 
-class Server
-{
+class Server {
 	public:
-		Server(short port, std::string password);
+		Server(short port, std::string &password);
 		~Server();
 
 		static void	handle_signal(int signal);
@@ -29,13 +28,28 @@ class Server
 		void		handle_connection();
 		void		handle_message(int fd);
 		std::string	read_message(int fd);
-		void		parse_message(std::map< int, Client >::iterator iter, std::string message);
+		void		parse_message(std::map< int, Client >::iterator iter, std::string &message);
+		// Command
+		void		pass(Client &client, std::string &password);
+		void		ping(Client &client);
+		void		nick(Client &client, std::string &nickname);
+		void		user(Client &client, std::string &username);
+		void		join(Channel &channel, Client &client);
+		void		part(Channel &channel, Client &client);
+		void		privmsg(Client &client, std::string message);
+		void		quit(Client &client);
+		//void 		kick(Channel &channel, Client &client, std::string &nickname);
+		//void		invite(Channel &channel, Client &client, std::string &nickname);
+		void		topic(Channel &channel, std::string &topic);
+		void		mode(Channel &channel, Client &client, char mode);
 		// Mode
-		void		mode_I(Channel &channel);
-		void		mode_T(Channel &channel, std::string &topic);
-		void		mode_K(Channel &channel, std::string &password);
-		void		mode_O(Channel &channel, Client &client);
-		void		mode_L(Channel &channel, int limit);
+		void		mode_I(Channel &channel, Client &client);
+		void		mode_T(Channel &channel, Client &client, std::string &topic);
+		void		mode_K(Channel &channel, Client &client, std::string &password);
+		void		mode_O(Channel &channel, Client &client, Client &target);
+		void		mode_L(Channel &channel, Client &client, int limit);
+		
+		std::string getIpAdress() const;
 
 	private:
 		static bool						_running;

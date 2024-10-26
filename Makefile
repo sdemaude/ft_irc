@@ -6,7 +6,7 @@
 #    By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/22 13:41:02 by sdemaude          #+#    #+#              #
-#    Updated: 2024/10/26 10:12:11 by sdemaude         ###   ########.fr        #
+#    Updated: 2024/10/26 13:09:50 by sdemaude         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,9 @@ SRCDIR		= srcs
 SRCFILE		= main\
 			  Server\
 			  Client\
-			  Channel
+			  Channel\
+			  command\
+			  mode
 
 OBJDIR		= objs
 OBJS 		= $(addprefix $(OBJDIR)/,$(addsuffix .o,$(SRCFILE)))

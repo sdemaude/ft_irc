@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
+/*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:14 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/26 11:48:23 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/26 13:59:52 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 bool Server::_running = true;
 
-Server::Server(short port, std::string password) : _port(port), _password(password) {
+Server::Server(short port, std::string &password) : _port(port), _password(password) {
    	// Set the address structure
 	memset(&this->_addr, 0, sizeof(this->_addr));
 	this->_addr.sin_family = AF_INET;
@@ -136,12 +136,12 @@ commande et ses paramètres. Il n’y a aucune disposition pour la continuation
 des lignes du message. Voir à la section 6 des précisions sur les mises en 
 œuvre actuelles.
  */
-void	Server::parse_message(std::map< int, Client >::iterator iter, std::string message) {
+void	Server::parse_message(std::map< int, Client >::iterator iter, std::string &message) {
 	std::string	prefix = "";
 	std::string	command = "";
 	std::string	params = "";
 
-	message = this->_clients[iter->first].get_buffer() + message;
+	message = this->_clients[iter->first].getBuffer() + message;
 }
 
 int Server::loop() {
@@ -218,4 +218,8 @@ void Server::handle_signal(int signal) {
 	if (signal == SIGINT) {
 		Server::_running = false;
 	}
+}
+
+std::string Server::getIpAdress() const {
+	return (inet_ntoa(this->_addr.sin_addr));
 }
