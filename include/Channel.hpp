@@ -6,13 +6,15 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:47:27 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 13:18:39 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/28 15:10:00 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "ft_irc.hpp"
+
+class Client;
 
 class Channel
 {

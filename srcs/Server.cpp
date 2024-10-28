@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
+/*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:14 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 14:57:45 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/28 15:41:03 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 bool Server::_running = true;
 
-Server::Server(short port, std::string &password) : _port(port), _password(password) {
+Server::Server(int port, std::string password) : _port(port), _password(password) {
    	// Set the address structure
 	memset(&this->_addr, 0, sizeof(this->_addr));
 	this->_addr.sin_family = AF_INET;
@@ -172,6 +172,7 @@ void	Server::parse_message(Client &client, std::string message) {
 // void	topic(Client &clilent, Channel &channel, std::string &topic);
 // void	mode(Client &client, Channel &channel, char mode, std::string &parameter);
 void	Server::parse_command(Client &client, std::string prefix, std::string command, std::string params) {
+	(void)prefix;
 	std::cout << "[" << client.getFd() << "] Command received : " << command << std::endl;
 	std::cout << "[" << client.getFd() << "] Params received : " << params << std::endl;
 
@@ -371,7 +372,6 @@ int Server::loop() {
 			if (events[i].data.fd == this->_socket_fd) {
 				handle_connection();
 			} else {
-				std::cout << "Client trying to send a message" << std::endl;
 				handle_message(events[i].data.fd);
 				// Read the message using recv()
 				//	- If the message is not empty, parse it and send the response

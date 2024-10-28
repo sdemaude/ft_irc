@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   command.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
+/*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 12:52:50 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 15:06:31 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/28 15:20:03 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,7 @@ void	Server::join(Client &client, Channel &channel, std::string &password) {
 		// Check if the channel exists
 		std::string response = ":server 403 " + client.getNickname() + " " + channel.getName() + " :No such channel\r\n";
 		send(client.getFd(), response.c_str(), response.size(), 0);
-	} else if (channel.getUsers().size() <= channel.getLimit()) {
+	} else if ((int)channel.getUsers().size() <= channel.getLimit()) {
 		// Check if the channel is full
 		std::string response = ":server 471 " + client.getNickname() + " " + channel.getName() + " :Cannot join channel (+l)\r\n";
 		send(client.getFd(), response.c_str(), response.size(), 0);
