@@ -6,7 +6,7 @@
 /*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:37 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 14:17:43 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/28 15:06:26 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,18 +38,18 @@ class Server {
 		void		user(Client &client, std::string &username, std::string &hostname, std::string &realname);
 		void		join(Client &client, Channel &channel, std::string &password);
 		void		part(Client &client, Channel &channel);
-		void		privmsg(Client &client, std::string target, std::string message);
+		void		privmsg(Client &client, std::string &target, std::string &message);
 		void		quit(Client &client);
 		void		kick(Client &client, Channel &channel,  Client &target);
 		void		invite(Client &client, Channel &channel, Client &target);
 		void		topic(Client &clilent, Channel &channel, std::string &topic);
 		void		mode(Client &client, Channel &channel, char mode, std::string &parameter);
 		// Mode
-		void		mode_I(Channel &channel, Client &client);
-		void		mode_T(Channel &channel, Client &client, std::string &topic);
-		void		mode_K(Channel &channel, Client &client, std::string &password);
-		void		mode_O(Channel &channel, Client &client, Client &target);
-		void		mode_L(Channel &channel, Client &client, int limit);
+		void		mode_I(Client &client, Channel &channel);
+		void		mode_T(Client &client, Channel &channel, std::string &topic);
+		void		mode_K(Client &client, Channel &channel, std::string &password);
+		void		mode_O(Client &client, Channel &channel, Client &target);
+		void		mode_L(Client &client, Channel &channel, int limit);
 		
 		//std::string getIpAdress() const;
 
