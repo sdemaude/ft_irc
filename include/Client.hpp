@@ -6,7 +6,7 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 11:37:37 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 15:19:13 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/28 18:43:17 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ class Client
 {
 	public:
 		Client(int fd, std::string ip_addr);
+		Client(const Client &other);
 		~Client();
 
 		std::string						get_buffer();
@@ -46,7 +47,7 @@ class Client
 		bool							_registered; // false by default (for the password)
 		bool							_registration; // false by default (for the user info)
 		int								_fd;
-		std::string						_ip_adrr;
+		std::string						_ip_addr;
 		std::string						_buffer;
 		std::string						_nickname;
 		std::string						_username;

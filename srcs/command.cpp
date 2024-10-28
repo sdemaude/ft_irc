@@ -6,7 +6,7 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 12:52:50 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 16:36:52 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/28 19:09:33 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@
 
 void	Server::ping(Client &client) {
 	// Send a PONG response to the client
-	std::string response = ":" + client.getId() + " PONG " + client.getNickname() + " :server\r\n";
+	std::string response = ":server PONG server\r\n"; //TODO find the right command to send
 	send(client.getFd(), response.c_str(), response.size(), 0);
 }
 
@@ -123,12 +123,8 @@ void	Server::user(Client &client, std::string &username, std::string &hostname, 
 // For all the functions below, check if the client is registered before executing the command
 
 void	Server::join(Client &client, Channel &channel, std::string &password) {
-	if (this->_channels.find(channel.getName()) == this->_channels.end()) {
-		// Check if the channel exists
-		std::string response = ":server 403 " + client.getNickname() + " " + channel.getName() + " :No such channel\r\n";
-		send(client.getFd(), response.c_str(), response.size(), 0);
-	} else if ((int)channel.getUsers().size() <= channel.getLimit()) {
-		// Check if the channel is full
+	// Check if the channel is full
+	if ((int)channel.getUsers().size() <= channel.getLimit()) {
 		std::string response = ":server 471 " + client.getNickname() + " " + channel.getName() + " :Cannot join channel (+l)\r\n";
 		send(client.getFd(), response.c_str(), response.size(), 0);
 	} else if (channel.getUsers().find(client) != channel.getUsers().end()) {
@@ -248,8 +244,12 @@ void	Server::quit(Client &client) {
 // Check if the client is an operator for all the functions below
 
 void	Server::kick(Client &client, Channel &channel, Client &target) {
-	// Check if the client is in the channel
-	if (channel.getUsers().find(target) == channel.getUsers().end()) {
+	// Check if the client is an operator
+	if (channel.getUsers().find(client) == channel.getUsers().end()) { //TODO
+		std::string response = ":server 482 " + client.getNickname() + " " + channel.getName() + " :You're not channel operator\r\n";
+		send(client.getFd(), response.c_str(), response.size(), 0);
+	} else if (channel.getUsers().find(target) == channel.getUsers().end()) {
+		// Check if the client is in the channel
 		std::string response = ":server 441 " + client.getNickname() + " " + target.getNickname() + " " + channel.getName() + " :They aren't on that channel\r\n";
 		send(client.getFd(), response.c_str(), response.size(), 0);
 	} else {
@@ -263,8 +263,12 @@ void	Server::kick(Client &client, Channel &channel, Client &target) {
 }
 
 void	Server::invite(Client &client, Channel &channel, Client &target) {
-	// Check if the channel is invite only
-	if (!channel.getInviteOnly()) {
+	// Check if the client is an operator
+	if (channel.getUsers().find(client) == channel.getUsers().end()) { //TODO
+		std::string response = ":server 482 " + client.getNickname() + " " + channel.getName() + " :You're not channel operator\r\n";
+		send(client.getFd(), response.c_str(), response.size(), 0);
+	} else if (!channel.getInviteOnly()) {
+		// Check if the channel is invite only
 		std::string response = ":server 518 " + client.getNickname() + " " + channel.getName() + " :Channel is not invite only\r\n";
 		send(client.getFd(), response.c_str(), response.size(), 0);
 	} else if (channel.getUsers().find(target) != channel.getUsers().end()) {
@@ -277,14 +281,17 @@ void	Server::invite(Client &client, Channel &channel, Client &target) {
 		send(target.getFd(), response.c_str(), response.size(), 0);
 		std::string	response2 = ":server 341 " + client.getNickname() + " " + target.getNickname() + " " + channel.getName() + " :Invited " + target.getNickname() + " to " + channel.getName() + "\r\n";
 		send(client.getFd(), response2.c_str(), response2.size(), 0);
-		channel.getWaitList().push_back(target);
+		channel.add_waitlist(target);
 		std::cout << "Client invited to the channel " << channel.getName() << std::endl;
 	}
 }
 
 void	Server::topic(Client &client, Channel &channel, std::string &topic) {
-	// Check if the topic is empty
-	if (topic == "") {
+	// Check if the client is an operator
+	if (channel.getUsers().find(client) == channel.getUsers().end()) { //TODO
+		std::string response = ":server 482 " + client.getNickname() + " " + channel.getName() + " :You're not channel operator\r\n";
+		send(client.getFd(), response.c_str(), response.size(), 0);
+	} else if (topic == "") {
 		// If the topic is empty, send the topic to the client
 		if (channel.getTopic() == "") {
 			std::string response = ":server 331 " + client.getNickname() + " " + channel.getName() + " :No topic is set\r\n";
@@ -302,43 +309,49 @@ void	Server::topic(Client &client, Channel &channel, std::string &topic) {
 	}
 }
 
-// ∗ MODE - Change the channel’s mode
 void	Server::mode(Client &client, Channel &channel, char mode, std::string &parameter) {
-//TODO Check before if the user is an operator in the MODE command
-//TODO Send the response to the user
-
-	switch (mode) {
-		case 'i':
-			mode_I(client, channel);
-			break;
-		case 't':
-			mode_T(client, channel, parameter);
-			break;
-		case 'k':
-			mode_K(client, channel, parameter);
-			break;
-		case 'o': {
-			// string to client
-			//TODO? check if the user exists
-			//mode_O(client, channel, parameter);
-			int target_fd = this->getFdByNickname(parameter);
-			// find the client instance from the fd
-			std::map<int, Client>::iterator it = this->_clients.find(target_fd);
-			if (it == this->_clients.end()) {
+	// Check if the client is an operator using the value of the map at the client key
+	
+	if (channel.getUsers().find(client) == channel.getUsers().end()) { //TODO
+		std::string response = ":server 482 " + client.getNickname() + " " + channel.getName() + " :You're not channel operator\r\n";
+		send(client.getFd(), response.c_str(), response.size(), 0);
+	} else {
+		// Check the mode and execute the command
+		switch (mode) {
+			case 'i':
+				mode_I(client, channel);
+				break;
+			case 't':
+				mode_T(client, channel, parameter);
+				break;
+			case 'k':
+				mode_K(client, channel, parameter);
+				break;
+			case 'o': {
+				// Convert the parameter to an int and check if the client exists
+				int target_fd = this->getFdByNickname(parameter);
+				std::map<int, Client>::iterator it = this->_clients.find(target_fd);
+				while (it != this->_clients.end()) {
+					if (it->first == target_fd) {
+						mode_O(client, channel, it->second);
+						break;
+					}
+					it++;
+				}
 				std::string response = ":server 401 " + client.getNickname() + " " + parameter + " :No such nick/channel\r\n";
 				send(client.getFd(), response.c_str(), response.size(), 0);
-				return;
+				break;
 			}
-			break;
-		}
-		case 'l': {
-			if (parameter == "") {
-				mode_L(client, channel, -1);
-			} else {
-				int limit = std::stoi(parameter);
-				mode_L(client, channel, limit);
+			case 'l': {
+				// Convert the parameter to an int
+				if (parameter == "") {
+					mode_L(client, channel, -1);
+				} else {
+					int limit = strtod(parameter.c_str(), NULL);
+					mode_L(client, channel, limit);
+				}
+				break;
 			}
-			break;
 		}
 	}
 }

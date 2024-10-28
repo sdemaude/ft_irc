@@ -6,7 +6,7 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:47:27 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 15:10:00 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/28 18:04:31 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ class Channel
 {
 	public:
 		Channel();
+		Channel(const Channel &other);
 		~Channel();
 
 		void					sendToAll(std::string &message);
@@ -37,6 +38,8 @@ class Channel
 		void					setName(std::string const &name);
 		std::map<Client, int>	getUsers() const;
 		std::vector<Client>		getWaitList() const;
+
+		void					add_waitlist(Client &client);
 
 		void					add_client(Client &client);
 		void					remove_client(Client &client);

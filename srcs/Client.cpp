@@ -6,15 +6,34 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 11:37:40 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 11:08:35 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/28 18:43:42 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Client.hpp"
 
-Client::Client(int fd, std::string ip_addr) : _fd(fd), _ip_adrr(ip_addr) {
+Client::Client(int fd, std::string ip_addr) : _fd(fd), _ip_addr(ip_addr) {
 	this->_registered = false;
 	this->_registration = false;
+	this->_nickname = "";
+	this->_username = "";
+	this->_hostname = "";
+	this->_realname = "";
+	this->_buffer = "";
+	this->_channels = std::map<std::string, Channel>();
+}
+
+Client::Client(const Client &other) {
+	this->_fd = other._fd;
+	this->_ip_addr = other._ip_addr;
+	this->_buffer = other._buffer;
+	this->_nickname = other._nickname;
+	this->_username = other._username;
+	this->_hostname = other._hostname;
+	this->_realname = other._realname;
+	this->_registered = other._registered;
+	this->_registration = other._registration;
+	this->_channels = other._channels;
 }
 
 Client::~Client() {
@@ -38,7 +57,7 @@ int Client::getFd() const {
 }
 
 std::string Client::getId() const {
-	std::string id = this->_nickname + "!" + this->_username + "@" + this->_ip_adrr;
+	std::string id = this->_nickname + "!" + this->_username + "@" + this->_ip_addr;
 	return (id);
 }
 
@@ -59,11 +78,11 @@ void Client::setUsername(std::string &user) {
 }
 
 std::string Client::getHostname() const {
-	return (this->_ip_adrr);
+	return (this->_ip_addr);
 }
 
 void Client::setHostname(std::string &hostname) {
-	this->_ip_adrr = hostname;
+	this->_ip_addr = hostname;
 }
 
 std::string Client::getRealname() const {

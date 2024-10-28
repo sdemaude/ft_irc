@@ -3,16 +3,33 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
+/*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 10:11:43 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 15:06:03 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/28 18:05:43 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Channel.hpp"
 
 Channel::Channel() : _invite_only(false), _limit(-1), _topic(""), _password(""), _name("") {
+	this->_invite_only = false;
+	this->_limit = -1;
+	this->_topic = "";
+	this->_password = "";
+	this->_name = "";
+	this->_users = std::map<Client, int>();
+	this->_wait_list = std::vector<Client>();
+}
+
+Channel::Channel(const Channel &other) {
+	this->_invite_only = other._invite_only;
+	this->_limit = other._limit;
+	this->_topic = other._topic;
+	this->_password = other._password;
+	this->_name = other._name;
+	this->_users = other._users;
+	this->_wait_list = other._wait_list;
 }
 
 Channel::~Channel() {
@@ -84,6 +101,10 @@ std::map<Client, int> Channel::getUsers() const {
 
 std::vector<Client> Channel::getWaitList() const {
 	return this->_wait_list;
+}
+
+void Channel::add_waitlist(Client &client) {
+	this->_wait_list.push_back(client);
 }
 
 void Channel::add_client(Client &client) {

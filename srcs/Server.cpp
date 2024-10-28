@@ -3,14 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
+/*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:14 by sdemaude          #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2024/10/28 16:15:47 by sdemaude         ###   ########.fr       */
-=======
-/*   Updated: 2024/10/28 16:33:32 by ccormon          ###   ########.fr       */
->>>>>>> origin/ccormon
+/*   Updated: 2024/10/28 19:12:03 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +15,9 @@
 bool Server::_running = true;
 
 Server::Server(int port, std::string password) : _port(port), _password(password) {
+	this->_socket_fd = 0;
+	this->_epoll_fd = 0;
+
    	// Set the address structure
 	memset(&this->_addr, 0, sizeof(this->_addr));
 	this->_addr.sin_family = AF_INET;
@@ -114,20 +113,25 @@ std::string	Server::read_message(int fd) {
 	}
 }
 
-static std::vector<std::string>	split_string(std::string str, char delimiter) {
-	std::vector<std::string>	string_splitted;
-	size_t						start = 0;
-	size_t						end = str.find(delimiter);
-
-	while (end != std::string::npos) {
-		string_splitted.push_back(str.substr(start, end - start));
-		start = end + 1;
-		end = str.find(delimiter, start);
-	}
-
-	string_splitted.push_back(str.substr(start, str.size() - start));
-
-	return string_splitted;
+static std::vector<std::string> split_string(std::string str, char delimiter, bool erase_delimiter) {
+		// Split a string into a vector of strings using a delimiter
+		std::vector<std::string> string_splitted;
+		size_t start = 0;
+		size_t end = str.find(delimiter);
+	
+		while (end != std::string::npos) {
+			if (erase_delimiter) {
+				string_splitted.push_back(str.substr(start, end - start)); // Exclude the delimiter
+			} else {
+				string_splitted.push_back(str.substr(start, end - start + 1)); // Include the delimiter
+			}
+			start = end + 1;
+			end = str.find(delimiter, start);
+		}
+	
+		string_splitted.push_back(str.substr(start, str.size() - start)); // Add the remaining part
+	
+		return string_splitted;
 }
 
 void	Server::parse_message(Client &client, std::string message) {
@@ -136,7 +140,7 @@ void	Server::parse_message(Client &client, std::string message) {
 
 	client.clear_buffer();
 
-	std::vector<std::string>	splitted_message = split_string(message, '\n');
+	std::vector<std::string>	splitted_message = split_string(message, '\n', false);
 
 	for (size_t i = 0; i < splitted_message.size(); i++) {
 		if (splitted_message[i].find("\r\n") == std::string::npos) {
@@ -144,6 +148,7 @@ void	Server::parse_message(Client &client, std::string message) {
 			return ;
 		}
 
+		std::cout << "Am I still here?" << std::endl;
 		splitted_message[i].resize(splitted_message[i].size() - 2);
 		if (splitted_message[i].size() == 0)
 			continue;
@@ -151,7 +156,7 @@ void	Server::parse_message(Client &client, std::string message) {
 		std::string					prefix = "";
 		std::string					command = "";
 		std::string					params = "";
-		std::vector<std::string>	splitted_command = split_string(splitted_message[i], ' ');
+		std::vector<std::string>	splitted_command = split_string(splitted_message[i], ' ', true);
 
 		if (splitted_command.size() == 0)
 			continue;
@@ -179,17 +184,13 @@ void	Server::parse_command(Client &client, std::string prefix, std::string comma
 	std::cout << "[" << client.getFd() << "] Command received : " << command << std::endl;
 	std::cout << "[" << client.getFd() << "] Params received : " << params << std::endl;
 
-	std::vector<std::string>	splitted_params = split_string(params, ' ');
+	std::vector<std::string>	splitted_params = split_string(params, ' ', true);
 
 	if (command == "PASS") {
 		this->pass(client, params);
-	}
-
-	else if (command == "NICK") {
+	} else if (command == "NICK") {
 		this->nick(client, params);
-	}
-
-	else if (command == "USER") {
+	} else if (command == "USER") {
 		if (splitted_params.size() < 4) {
 			std::string	response = ERR_NEEDMOREPARAMS + " " + client.getNickname() + " :Not enough parameters";
 			send(client.getFd(), response.c_str(), response.size(), 0);
@@ -243,7 +244,40 @@ void	Server::parse_command(Client &client, std::string prefix, std::string comma
 	}
 
 	// Channel
-	else if (command == "JOIN" && client.getRegistered()) {
+
+	else if (command == "JOIN" && client.getRegistration()) {
+		// Check if the client is registered
+		if (params.size() == 0) {
+			std::string	response = ERR_NEEDMOREPARAMS + " " + client.getNickname() + " :Not enough parameters";
+			send(client.getFd(), response.c_str(), response.size(), 0);
+			return;
+		}
+
+		// Get the channel name
+		std::string									channel_name = splitted_params[0];
+		std::map<std::string, Channel>::iterator	it = this->_channels.find(channel_name);
+
+		// If the channel does not exist, create it and add the client to it
+		if (it == this->_channels.end()) {
+			Channel	channel;
+			this->_channels.insert(std::pair<std::string, Channel>(channel_name, channel));
+			it = this->_channels.find(channel_name);
+
+			//TODO : add client to channel here if the channel does not exist
+			(*it).second.add_client(client);
+			client.getChannels().insert(std::pair<std::string, Channel>(channel.getName(), channel));
+			std::string response = ":" + client.getId() + " JOIN " + channel.getName() + "\r\n";
+			channel.sendToOthers(response, client);
+			std::cout << "Client created and joined the channel" << std::endl;
+			return;
+		}
+
+		// Add the client to the channel
+		this->join(client, (*it).second, splitted_params[1]);
+	}
+
+
+	/*else if (command == "JOIN" && client.getRegistered()) {
 		if (params.size() == 0) {
 			std::string	response = ERR_NEEDMOREPARAMS + " " + client.getNickname() + " :Not enough parameters";
 			send(client.getFd(), response.c_str(), response.size(), 0);
@@ -264,12 +298,12 @@ void	Server::parse_command(Client &client, std::string prefix, std::string comma
 			channel.setName(channel_name);
 			channel.add_client(client);
 			channel.setPassword(password);
+			//client.getChannels().insert(std::pair<std::string, Channel>(channel_name, channel));
 
 			this->_channels.insert(std::pair<std::string, Channel>(channel_name, channel));
 		}
-
 		this->join(client, (*it).second, password);
-	}
+	}*/
 
 	else if (command == "PART" && client.getRegistered()) {
 		if (params.size() == 0) {
@@ -408,6 +442,10 @@ void	Server::parse_command(Client &client, std::string prefix, std::string comma
 		this->mode(client, (*it).second, mode[1], parameter);
 	}
 
+	else {
+		std::string	response = ":server 421 " + client.getNickname() + " :Unknown command";
+		send(client.getFd(), response.c_str(), response.size(), 0);
+	}
 	// else if (!client.getRegistered()) {
 	// 	std::string	response = ERR_NOTREGISTERED + " " + client.getNickname() + " :You have not registered";
 	// 	send(client.getFd(), response.c_str(), response.size(), 0);
@@ -454,8 +492,6 @@ int Server::loop() {
 				handle_connection();
 			} else {
 				handle_message(events[i].data.fd);
-				// Read the message using recv()
-				//	- If the message is not empty, parse it and send the response
 			}
 		}
 	}
