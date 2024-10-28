@@ -6,7 +6,7 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 10:11:43 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/26 15:20:01 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/28 11:32:21 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,24 @@ Channel::~Channel() {
 }
 
 void Channel::sendToAll(std::string &message) {
-	// send the message to all clients in the channel
+	// Send the message to all clients in the channel
+	std::map<Client, int>::iterator it = this->_users.begin();
+	while (it != this->_users.end()) {
+		send(it->first.getFd(), message.c_str(), message.size(), 0);
+		it++;
+	}
 }
 
-//void Channel::sendToOthers(std::string &message, Client &client) {
-	// send the message to all clients in the channel except the client
-//}
+void Channel::sendToOthers(std::string &message, Client &client) {
+	// Send the message to all clients in the channel except the client
+	std::map<Client, int>::iterator it = this->_users.begin();
+	while (it != this->_users.end()) {
+		if (it->first.getFd() != client.getFd()) {
+			send(it->first.getFd(), message.c_str(), message.size(), 0);
+		}
+		it++;
+	}
+}
 
 bool Channel::getInviteOnly() const {
     return this->_invite_only;
@@ -71,3 +83,15 @@ std::map<Client, int> Channel::getUsers() const {
 }
 
 //TODO? Setters for the users
+
+
+void Channel::add_client(Client &client) {
+	// add the client to the channel
+}
+
+void Channel::remove_client(Client &client) {
+	// remove the client from the channel
+	if (this->_users.find(client) != this->_users.end()) {
+		this->_users.erase(client);
+	}
+}

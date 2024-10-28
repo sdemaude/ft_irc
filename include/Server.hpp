@@ -6,7 +6,7 @@
 /*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:37 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 11:03:13 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/28 11:47:15 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ class Server {
 		void		mode_O(Channel &channel, Client &client, Client &target);
 		void		mode_L(Channel &channel, Client &client, int limit);
 		
-		std::string getIpAdress() const;
+		//std::string getIpAdress() const;
 
 	private:
 		static bool						_running;
