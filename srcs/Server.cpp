@@ -6,7 +6,7 @@
 /*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:14 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 16:01:01 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/28 16:05:44 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -356,6 +356,11 @@ void	Server::parse_command(Client &client, std::string prefix, std::string comma
 			send(client.getFd(), response.c_str(), response.size(), 0);
 			return;
 		}
+
+		if (splitted_params.size() > 1)
+			topic = splitted_params[1];
+
+		this->topic(client, (*it).second, topic);
 	}
 
 	// void	mode(Client &client, Channel &channel, char mode, std::string &parameter);
