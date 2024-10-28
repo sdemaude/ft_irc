@@ -6,7 +6,7 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 10:11:43 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 11:32:21 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/28 14:38:01 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@ Channel::Channel() : _invite_only(false), _limit(-1), _topic(""), _password(""),
 Channel::~Channel() {
 }
 
+// Send the message to all clients in the channel
 void Channel::sendToAll(std::string &message) {
-	// Send the message to all clients in the channel
 	std::map<Client, int>::iterator it = this->_users.begin();
 	while (it != this->_users.end()) {
 		send(it->first.getFd(), message.c_str(), message.size(), 0);
@@ -27,8 +27,8 @@ void Channel::sendToAll(std::string &message) {
 	}
 }
 
+// Send the message to all clients in the channel except the client
 void Channel::sendToOthers(std::string &message, Client &client) {
-	// Send the message to all clients in the channel except the client
 	std::map<Client, int>::iterator it = this->_users.begin();
 	while (it != this->_users.end()) {
 		if (it->first.getFd() != client.getFd()) {
@@ -82,15 +82,15 @@ std::map<Client, int> Channel::getUsers() const {
 	return this->_users;
 }
 
-//TODO? Setters for the users
-
+std::vector<Client> Channel::getWaitList() const {
+	return this->_wait_list;
+}
 
 void Channel::add_client(Client &client) {
 	// add the client to the channel
 }
 
 void Channel::remove_client(Client &client) {
-	// remove the client from the channel
 	if (this->_users.find(client) != this->_users.end()) {
 		this->_users.erase(client);
 	}
