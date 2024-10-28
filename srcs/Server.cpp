@@ -6,7 +6,7 @@
 /*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:14 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/26 16:31:10 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/28 11:37:58 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,60 +167,116 @@ void	Server::parse_message(Client &client, std::string message) {
 	}
 }
 
+// void	pass(Client &client, std::string &password);
+// void	ping(Client &client);
+// void	nick(Client &client, std::string &nickname);
+// void	user(Client &client, std::string &username, std::string &hostname, std::string &realname);
+// void	join(Client &client, Channel &channel, std::string &password);
+// void	part(Client &client, Channel &channel);
+// void	privmsg(Client &client, std::string message, Client &target);
+// void	quit(Client &client);
+// void	kick(Client &client, Channel &channel,  Client &target);
+// void	invite(Client &client, Channel &channel, Client &target);
+// void	topic(Client &clilent, Channel &channel, std::string &topic);
+// void	mode(Client &client, Channel &channel, char mode, std::string &parameter);
+
 void	Server::parse_command(Client &client, std::string prefix, std::string command, std::string params) {
 	std::cout << "[" << client.getFd() << "] Command received : " << command << std::endl;
 	std::cout << "[" << client.getFd() << "] Params received : " << params << std::endl;
 
-	//TODO? check if the client is registered
-	//TODO? check if the command is valid
+	std::vector<std::string>	splitted_params = split_string(params, ' ');
 
 	if (command == "PASS") {
-		// client, password
+		this->pass(client, params);
 	}
 
 	else if (command == "NICK") {
-		// client, nickname
+		this->nick(client, params);
 	}
 
 	else if (command == "USER") {
-		// client, username, hostname, realname
+		if (splitted_params.size() < 4) {
+			std::string	response = ERR_NEEDMOREPARAMS + " " + client.getNickname() + " :Not enough parameters";
+			send(client.getFd(), response.c_str(), response.size(), 0);
+			return;
+		}
+
+		std::string	username = splitted_params[0];
+		std::string	hostname = splitted_params[1];
+		std::string	realname = splitted_params[3];
+
+		if (realname[0] == ':') {
+			realname = realname.substr(1);
+
+			if (splitted_params.size() > 4) {
+				for (size_t i = 4; i < splitted_params.size(); i++)
+					realname += " " + splitted_params[i];
+			}
+		}
+
+		this->user(client, username, hostname, realname);
 	}
 
-	else if (command == "PRIVMSG") {
-		// client, target, message
+	else if (command == "PRIVMSG" && client.getRegistered()) {
+		if (splitted_params.size() < 2) {
+			std::string	response = ERR_NEEDMOREPARAMS + " " + client.getNickname() + " :Not enough parameters";
+			send(client.getFd(), response.c_str(), response.size(), 0);
+			return;
+		}
+
+		std::string	target_name = splitted_params[0];
+		std::string	message = splitted_params[1];
+
+		if (message[0] == ':') {
+			message = message.substr(1);
+
+			if (splitted_params.size() > 2) {
+				for (size_t i = 2; i < splitted_params.size(); i++)
+					message += " " + splitted_params[i];
+			}
+		}
+
+		// find the target client with the nickname
+		// if the target client is not found, send a response to the client
 	}
 
-	else if (command == "PING") {
-		// client
+	else if (command == "PING" && client.getRegistered()) {
+		
 	}
 
-	else if (command == "QUIT") {
-		// client
+	else if (command == "QUIT" && client.getRegistered()) {
+		
 	}
 
 	// Channel
-	else if (command == "JOIN") {
-		// client, channel, password
+	else if (command == "JOIN" && client.getRegistered()) {
+		
 	}
 
-	else if (command == "PART") {
-		// client, channel
+	else if (command == "PART" && client.getRegistered()) {
+		
 	}
 
-	else if (command == "INVITE") {
-		// client, target, channel
+	else if (command == "INVITE" && client.getRegistered()) {
+		
 	}
 
-	else if (command == "KICK") {
-		// client, channel, target
+	else if (command == "KICK" && client.getRegistered()) {
+		
 	}
 
-	else if (command == "TOPIC") {
-		// client, channel, topic
+	else if (command == "TOPIC" && client.getRegistered()) {
+		
 	}
 
-	else if (command == "MODE") {
+	else if (command == "MODE" && client.getRegistered()) {
 		// client, channel, mode, mode parameter or empty (or -1 for l)
+	}
+
+	else if (!client.getRegistered()) {
+		std::string	response = ERR_NOTREGISTERED + " " + client.getNickname() + " :You have not registered";
+		send(client.getFd(), response.c_str(), response.size(), 0);
+		return;
 	}
 }
 

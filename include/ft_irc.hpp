@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_irc.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:14:40 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/26 15:03:22 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/28 11:28:10 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,3 +42,7 @@
 #define BACKLOG 10
 #define MAX_EVENTS 10
 #define BUFFER_SIZE 10
+
+// Error codes
+#define ERR_NOTREGISTERED std::string("451")
+#define ERR_NEEDMOREPARAMS std::string("461")

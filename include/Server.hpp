@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:37 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 09:16:09 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/28 11:03:13 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ class Server {
 		void		part(Client &client, Channel &channel);
 		void		privmsg(Client &client, std::string message, Client &target);
 		void		quit(Client &client);
-		void 		kick(Client &client, Channel &channel,  Client &target);
+		void		kick(Client &client, Channel &channel,  Client &target);
 		void		invite(Client &client, Channel &channel, Client &target);
 		void		topic(Client &clilent, Channel &channel, std::string &topic);
 		void		mode(Client &client, Channel &channel, char mode, std::string &parameter);
