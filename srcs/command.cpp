@@ -6,7 +6,7 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 12:52:50 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/26 15:16:15 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/28 09:38:52 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,9 @@
 // TOPIC - Set the topic of a channel
 // MODE - Change the mode of a channel (I, T, K, O, L)
 
+
+// Check if the client is registered before executing the command
+
 void	Server::pass(Client &client, std::string &password) {
 	// Check if the password is correct
 	if (password == this->_password) {
@@ -59,22 +62,37 @@ void	Server::ping(Client &client) {
 }
 
 void	Server::nick(Client &client, std::string &nickname) {
-	//client.setNickname(nickname);
+	// check if the nickname is already taken
+	// if yes, add an underscore to the nickname and check again (repeat until the nickname is available)
+	// set the nickname
+	// send a response to the client
+	std::map<int, Client>::iterator it = this->_clients.begin();
+	while (it != this->_clients.end()) {
+		if (it->second.getNickname() == nickname) {
+			nickname += "_";
+			it = this->_clients.begin();
+		}
+		it++;
+	}
+	client.setNickname(nickname);
+	std::string response = ":" + this->getIpAdress() + " 001 " + client.getNickname() + " :Welcome to the Internet Relay Network " + client.getNickname() + "!\r\n";
+	send(client.getFd(), response.c_str(), response.size(), 0);
+	std::cout << "Client connected" << std::endl;
 }
 
-void	Server::user(Client &client, std::string &username) {
+void	Server::user(Client &client, std::string &username, std::string &hostname, std::string &realname) {
 	//client.setUsername(username);
 }
 
-void	Server::join(Channel &channel, Client &client) {
+void	Server::join(Client &client, Channel &channel, std::string &password) {
 	//channel.add_client(client);
 }
 
-void	Server::part(Channel &channel, Client &client) {
+void	Server::part(Client &client, Channel &channel) {
 	//channel.remove_client(client);
 }
 
-void	Server::privmsg(Client &client, std::string message) {
+void	Server::privmsg(Client &client, std::string message, Client &target) {
 	//client.sendMessage(message);
 }
 
@@ -87,21 +105,19 @@ void	Server::quit(Client &client) {
 	// send a response to the client
 }
 
-// needs a client to kick
-//void	Server::kick(Channel &channel, Client &client) {
-//	channel.remove_client(client);
-//}
+void	Server::kick(Client &client, Channel &channel, Client &target) {
+	//channel.remove_client(client);
+}
 
-// needs a client to invite
-//void	Server::invite(Channel &channel, Client &client) {
-//	channel.add_client(client);
-//}
+void	Server::invite(Client &client, Channel &channel, Client &target) {
+	//channel.add_client(client);
+}
 
-void	Server::topic(Channel &channel, std::string &topic) {
+void	Server::topic(Client &client, Channel &channel, std::string &topic) {
 	channel.setTopic(topic);
 }
 
-void	Server::mode(Channel &channel, Client &client, char mode) {
+void	Server::mode(Client &client, Channel &channel, char mode, std::string &parameter) {
 	// check if the client is an operator
 	// if not, send a response to the client
 	// if yes, call the right mode function

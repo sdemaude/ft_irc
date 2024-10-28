@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
+/*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:37 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/26 15:23:14 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/28 09:16:09 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,15 +34,15 @@ class Server {
 		void		pass(Client &client, std::string &password);
 		void		ping(Client &client);
 		void		nick(Client &client, std::string &nickname);
-		void		user(Client &client, std::string &username);
-		void		join(Channel &channel, Client &client);
-		void		part(Channel &channel, Client &client);
-		void		privmsg(Client &client, std::string message);
+		void		user(Client &client, std::string &username, std::string &hostname, std::string &realname);
+		void		join(Client &client, Channel &channel, std::string &password);
+		void		part(Client &client, Channel &channel);
+		void		privmsg(Client &client, std::string message, Client &target);
 		void		quit(Client &client);
-		//void 		kick(Channel &channel, Client &client, std::string &nickname);
-		//void		invite(Channel &channel, Client &client, std::string &nickname);
-		void		topic(Channel &channel, std::string &topic);
-		void		mode(Channel &channel, Client &client, char mode);
+		void 		kick(Client &client, Channel &channel,  Client &target);
+		void		invite(Client &client, Channel &channel, Client &target);
+		void		topic(Client &clilent, Channel &channel, std::string &topic);
+		void		mode(Client &client, Channel &channel, char mode, std::string &parameter);
 		// Mode
 		void		mode_I(Channel &channel, Client &client);
 		void		mode_T(Channel &channel, Client &client, std::string &topic);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
+/*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 11:37:40 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/26 15:24:05 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/28 09:38:44 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,16 @@ std::string Client::getNickname() const {
     return (this->_nick);
 }
 
+void Client::setNickname(std::string nickname) {
+	this->_nick = nickname;
+}
+
 int Client::getFd() const {
     return (this->_fd);
+}
+
+bool Client::getRegistered() const {
+	return (this->_registered);
 }
 
 void Client::setRegistered(bool registered) {
