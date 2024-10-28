@@ -6,7 +6,7 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:47:27 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/26 14:45:24 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/28 11:29:37 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ class Channel
 		~Channel();
 
 		void					sendToAll(std::string &message);
+		void					sendToOthers(std::string &message, Client &client);
 		// Getters and setters
 		bool					getInviteOnly() const;
 		void					setInviteOnly(bool invite_only);
@@ -33,6 +34,9 @@ class Channel
 		std::string				getName() const;
 		void					setName(std::string const &name);
 		std::map<Client, int>	getUsers() const;
+
+		void					add_client(Client &client);
+		void					remove_client(Client &client);
 
 	private:
 		bool					_invite_only;	// false by default

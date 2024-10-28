@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
+/*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:14 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/26 16:31:10 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/28 11:04:17 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -300,6 +300,7 @@ void Server::handle_signal(int signal) {
 	}
 }
 
-std::string Server::getIpAdress() const {
-	return (inet_ntoa(this->_addr.sin_addr));
-}
+// Get the IP address of the server ?? TODO
+//std::string Server::getIpAdress() const {
+//	return (inet_ntoa(this->_addr.sin_addr));
+//}
