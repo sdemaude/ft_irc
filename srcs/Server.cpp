@@ -6,7 +6,7 @@
 /*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:14 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 11:47:14 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/28 14:57:45 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,19 +167,10 @@ void	Server::parse_message(Client &client, std::string message) {
 	}
 }
 
-// void	pass(Client &client, std::string &password);
-// void	ping(Client &client);
-// void	nick(Client &client, std::string &nickname);
-// void	user(Client &client, std::string &username, std::string &hostname, std::string &realname);
-// void	join(Client &client, Channel &channel, std::string &password);
-// void	part(Client &client, Channel &channel);
-// void	privmsg(Client &client, std::string message, Client &target);
-// void	quit(Client &client);
 // void	kick(Client &client, Channel &channel,  Client &target);
 // void	invite(Client &client, Channel &channel, Client &target);
 // void	topic(Client &clilent, Channel &channel, std::string &topic);
 // void	mode(Client &client, Channel &channel, char mode, std::string &parameter);
-
 void	Server::parse_command(Client &client, std::string prefix, std::string command, std::string params) {
 	std::cout << "[" << client.getFd() << "] Command received : " << command << std::endl;
 	std::cout << "[" << client.getFd() << "] Params received : " << params << std::endl;
@@ -224,7 +215,7 @@ void	Server::parse_command(Client &client, std::string prefix, std::string comma
 			return;
 		}
 
-		std::string	target_name = splitted_params[0];
+		std::string	target = splitted_params[0];
 		std::string	message = splitted_params[1];
 
 		if (message[0] == ':') {
@@ -236,29 +227,91 @@ void	Server::parse_command(Client &client, std::string prefix, std::string comma
 			}
 		}
 
-		// find the target client with the nickname
-		// if the target client is not found, send a response to the client
+		this->privmsg(client, target, message);
 	}
 
 	else if (command == "PING" && client.getRegistered()) {
-		
+		this->ping(client);
 	}
 
 	else if (command == "QUIT" && client.getRegistered()) {
-		
+		this->quit(client);
 	}
 
 	// Channel
 	else if (command == "JOIN" && client.getRegistered()) {
-		
+		if (params.size() == 0) {
+			std::string	response = ERR_NEEDMOREPARAMS + " " + client.getNickname() + " :Not enough parameters";
+			send(client.getFd(), response.c_str(), response.size(), 0);
+			return;
+		}
+
+		std::string	channel_name = splitted_params[0];
+		std::string	password = "";
+
+		if (splitted_params.size() > 1)
+			password = splitted_params[1];
+
+		std::map<std::string, Channel>::iterator	it = this->_channels.find(channel_name);
+
+		if (it == this->_channels.end()) {
+			Channel	channel;
+
+			channel.setName(channel_name);
+			channel.add_client(client);
+			channel.setPassword(password);
+
+			this->_channels.insert(std::pair<std::string, Channel>(channel_name, channel));
+		}
+
+		this->join(client, (*it).second, password);
 	}
 
 	else if (command == "PART" && client.getRegistered()) {
-		
+		if (params.size() == 0) {
+			std::string	response = ERR_NEEDMOREPARAMS + " " + client.getNickname() + " :Not enough parameters";
+			send(client.getFd(), response.c_str(), response.size(), 0);
+			return;
+		}
+
+		std::string									channel_name = splitted_params[0];
+		std::map<std::string, Channel>::iterator	it = this->_channels.find(channel_name);
+
+		if (it == this->_channels.end()) {
+			std::string	response = ERR_NOSUCHCHANNEL + " " + client.getNickname() + " :No such channel";
+			send(client.getFd(), response.c_str(), response.size(), 0);
+			return;
+		}
+
+		this->part(client, (*it).second);
 	}
 
 	else if (command == "INVITE" && client.getRegistered()) {
-		
+		if (splitted_params.size() < 2) {
+			std::string	response = ERR_NEEDMOREPARAMS + " " + client.getNickname() + " :Not enough parameters";
+			send(client.getFd(), response.c_str(), response.size(), 0);
+			return;
+		}
+
+		std::string						target_nick = splitted_params[0];
+		std::string						channel_name = splitted_params[1];
+		std::map<int, Client>::iterator	it_target = this->_clients.find(getFdByNickname(target_nick));
+
+		if (it_target == this->_clients.end()) {
+			std::string	response = ERR_NOSUCHNICK + " " + client.getNickname() + " :No such nick/channel";
+			send(client.getFd(), response.c_str(), response.size(), 0);
+			return;
+		}
+
+		std::map<std::string, Channel>::iterator	it_channel = this->_channels.find(channel_name);
+
+		if (it_channel == this->_channels.end()) {
+			std::string	response = ERR_NOSUCHCHANNEL + " " + client.getNickname() + " :No such channel";
+			send(client.getFd(), response.c_str(), response.size(), 0);
+			return;
+		}
+
+		this->invite(client, (*it_channel).second, (*it_target).second);
 	}
 
 	else if (command == "KICK" && client.getRegistered()) {
@@ -278,6 +331,17 @@ void	Server::parse_command(Client &client, std::string prefix, std::string comma
 		send(client.getFd(), response.c_str(), response.size(), 0);
 		return;
 	}
+}
+
+int	Server::getFdByNickname(std::string &nickname) {
+	std::map<int, Client>::iterator	it = this->_clients.begin();
+
+	while (it != this->_clients.end()) {
+		if (it->second.getNickname() == nickname)
+			return it->first;
+		it++;
+	}
+	return -1;
 }
 
 int Server::loop() {

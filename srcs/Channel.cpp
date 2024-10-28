@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 10:11:43 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 11:32:21 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/28 14:37:31 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,10 @@ std::map<Client, int> Channel::getUsers() const {
 
 
 void Channel::add_client(Client &client) {
-	// add the client to the channel
+	if (this->_users.size() == 0)
+		this->_users.insert(std::pair<Client, int>(client, 1));
+	else
+		this->_users.insert(std::pair<Client, int>(client, 0));
 }
 
 void Channel::remove_client(Client &client) {

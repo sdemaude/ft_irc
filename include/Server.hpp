@@ -6,7 +6,7 @@
 /*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:37 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 11:47:15 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/28 14:17:43 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ class Server {
 		std::string	read_message(int fd);
 		void		parse_message(Client &client, std::string message);
 		void		parse_command(Client &client, std::string prefix, std::string command, std::string params);
+		int			getFdByNickname(std::string &nickname);
 		// Command
 		void		pass(Client &client, std::string &password);
 		void		ping(Client &client);
@@ -37,7 +38,7 @@ class Server {
 		void		user(Client &client, std::string &username, std::string &hostname, std::string &realname);
 		void		join(Client &client, Channel &channel, std::string &password);
 		void		part(Client &client, Channel &channel);
-		void		privmsg(Client &client, std::string message, Client &target);
+		void		privmsg(Client &client, std::string target, std::string message);
 		void		quit(Client &client);
 		void		kick(Client &client, Channel &channel,  Client &target);
 		void		invite(Client &client, Channel &channel, Client &target);

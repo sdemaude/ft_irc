@@ -6,7 +6,7 @@
 /*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:14:40 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 11:28:10 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/28 14:49:29 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,3 +46,5 @@
 // Error codes
 #define ERR_NOTREGISTERED std::string("451")
 #define ERR_NEEDMOREPARAMS std::string("461")
+#define ERR_NOSUCHNICK std::string("401")
+#define ERR_NOSUCHCHANNEL std::string("403")
