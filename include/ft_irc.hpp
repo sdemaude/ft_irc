@@ -6,7 +6,7 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:14:40 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 16:10:43 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/28 16:40:50 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,8 @@
 #define BUFFER_SIZE 10
 
 // Error codes
-#define ERR_NOSUCHNICK      std::string("401")
-#define ERR_NOSUCHCHANNEL   std::string("403")
-#define ERR_NOTREGISTERED   std::string("451")
-#define ERR_NEEDMOREPARAMS  std::string("461")
+#define ERR_NOTREGISTERED std::string("451")
+#define ERR_NEEDMOREPARAMS std::string("461")
+#define ERR_NOSUCHNICK std::string("401")
+#define ERR_NOSUCHCHANNEL std::string("403")
+#define ERR_UNKNOWNMODE std::string("472")
