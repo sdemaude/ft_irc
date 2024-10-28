@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_irc.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:14:40 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 15:26:17 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/28 16:15:05 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,3 +49,4 @@
 #define ERR_NEEDMOREPARAMS std::string("461")
 #define ERR_NOSUCHNICK std::string("401")
 #define ERR_NOSUCHCHANNEL std::string("403")
+#define ERR_UNKNOWNMODE std::string("472")

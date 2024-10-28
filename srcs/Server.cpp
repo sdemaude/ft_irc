@@ -6,7 +6,7 @@
 /*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:14 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 16:05:44 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/28 16:33:32 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -339,7 +339,6 @@ void	Server::parse_command(Client &client, std::string prefix, std::string comma
 		this->kick(client, (*it_channel).second, (*it_target).second);
 	}
 
-	// void	topic(Client &client, Channel &channel, std::string &topic);
 	else if (command == "TOPIC" && client.getRegistered()) {
 		if (params.size() == 0) {
 			std::string	response = ERR_NEEDMOREPARAMS + " " + client.getNickname() + " :Not enough parameters";
@@ -365,14 +364,48 @@ void	Server::parse_command(Client &client, std::string prefix, std::string comma
 
 	// void	mode(Client &client, Channel &channel, char mode, std::string &parameter);
 	else if (command == "MODE" && client.getRegistered()) {
-		// client, channel, mode, mode parameter or empty (or -1 for l)
+		// client, channel, mode, mode parameter or empty
+		if (splitted_params.size() < 2) {
+			std::string	response = ERR_NEEDMOREPARAMS + " " + client.getNickname() + " :Not enough parameters";
+			send(client.getFd(), response.c_str(), response.size(), 0);
+			return;
+		}
+
+		std::string									channel_name = splitted_params[0];
+		std::map<std::string, Channel>::iterator	it = this->_channels.find(channel_name);
+
+		if (it == this->_channels.end()) {
+			std::string	response = ERR_NOSUCHCHANNEL + " " + client.getNickname() + " :No such channel";
+			send(client.getFd(), response.c_str(), response.size(), 0);
+			return;
+		}
+
+		std::string	mode = splitted_params[1];
+
+		if (mode.size() != 2
+			|| (mode[0] != '+' && mode[0] != '-')
+			|| (mode[1] != 'i' && mode[1] != 't' && mode[1] != 'k' && mode[1] != 'o' && mode[1] != 'l')) {
+			std::string	response = ERR_UNKNOWNMODE + " " + client.getNickname() + " :is unknown mode char to me for " + channel_name;
+			send(client.getFd(), response.c_str(), response.size(), 0);
+			return;
+		}
+
+		if (mode[0] == '+' && splitted_params.size() < 3) {
+			std::string	response = ERR_NEEDMOREPARAMS + " " + client.getNickname() + " :Not enough parameters";
+			send(client.getFd(), response.c_str(), response.size(), 0);
+			return;
+		}
+
+		std::string	parameter = (mode[0] == '+') ? splitted_params[2] : "";
+
+		this->mode(client, (*it).second, mode[1], parameter);
 	}
 
-	else if (!client.getRegistered()) {
-		std::string	response = ERR_NOTREGISTERED + " " + client.getNickname() + " :You have not registered";
-		send(client.getFd(), response.c_str(), response.size(), 0);
-		return;
-	}
+	// else if (!client.getRegistered()) {
+	// 	std::string	response = ERR_NOTREGISTERED + " " + client.getNickname() + " :You have not registered";
+	// 	send(client.getFd(), response.c_str(), response.size(), 0);
+	// 	return;
+	// }
 }
 
 int	Server::getFdByNickname(std::string &nickname) {
