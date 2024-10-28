@@ -6,7 +6,7 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:37 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 15:17:46 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/28 15:57:44 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ class Server {
 		void		quit(Client &client);
 		void		kick(Client &client, Channel &channel,  Client &target);
 		void		invite(Client &client, Channel &channel, Client &target);
-		void		topic(Client &clilent, Channel &channel, std::string &topic);
+		void		topic(Client &client, Channel &channel, std::string &topic);
 		void		mode(Client &client, Channel &channel, char mode, std::string &parameter);
 		// Mode
 		void		mode_I(Client &client, Channel &channel);

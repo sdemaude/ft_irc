@@ -6,7 +6,7 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 12:52:50 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 15:20:03 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/28 16:36:52 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ void	Server::user(Client &client, std::string &username, std::string &hostname, 
 	// Check if the client is registered
 	if (!client.getRegistered()) {
 		// If not, send an error message to the client
-		std::string response = ":server 451 " + client.getNickname() + " :You have not registered\r\n"; //TODO? check right format
+		std::string response = ":server 451 " + client.getNickname() + " :You have not registered\r\n";
 		send(client.getFd(), response.c_str(), response.size(), 0);
 	} else if (client.getRegistration()) {
 		// If the client is already registered, send an error message to the client
@@ -108,6 +108,12 @@ void	Server::user(Client &client, std::string &username, std::string &hostname, 
 		client.setRealname(realname);
 		client.setRegistration(true);
 		std::string response = ":server 001 " + client.getNickname() + " :Welcome to the Internet Relay Network " + client.getNickname() + "!\r\n";
+		send(client.getFd(), response.c_str(), response.size(), 0);
+		response = ":server 002 " + client.getNickname() + " :Your host is " + client.getHostname() + "\r\n";
+		send(client.getFd(), response.c_str(), response.size(), 0);
+		response = ":server 003 " + client.getNickname() + " :This server was created today\r\n";
+		send(client.getFd(), response.c_str(), response.size(), 0);
+		response = ":server 004 " + client.getNickname() + " :server\r\n";
 		send(client.getFd(), response.c_str(), response.size(), 0);
 		std::cout << "User registration completed" << std::endl;
 	}
@@ -298,22 +304,41 @@ void	Server::topic(Client &client, Channel &channel, std::string &topic) {
 
 // ∗ MODE - Change the channel’s mode
 void	Server::mode(Client &client, Channel &channel, char mode, std::string &parameter) {
+//TODO Check before if the user is an operator in the MODE command
+//TODO Send the response to the user
 
 	switch (mode) {
-		case 'I':
+		case 'i':
 			mode_I(client, channel);
 			break;
-		case 'T':
+		case 't':
 			mode_T(client, channel, parameter);
 			break;
-		case 'K':
+		case 'k':
 			mode_K(client, channel, parameter);
 			break;
-		case 'O':
+		case 'o': {
+			// string to client
+			//TODO? check if the user exists
 			//mode_O(client, channel, parameter);
+			int target_fd = this->getFdByNickname(parameter);
+			// find the client instance from the fd
+			std::map<int, Client>::iterator it = this->_clients.find(target_fd);
+			if (it == this->_clients.end()) {
+				std::string response = ":server 401 " + client.getNickname() + " " + parameter + " :No such nick/channel\r\n";
+				send(client.getFd(), response.c_str(), response.size(), 0);
+				return;
+			}
 			break;
-		case 'L':
-			//mode_L(client, channel, parameter);
+		}
+		case 'l': {
+			if (parameter == "") {
+				mode_L(client, channel, -1);
+			} else {
+				int limit = std::stoi(parameter);
+				mode_L(client, channel, limit);
+			}
 			break;
+		}
 	}
 }

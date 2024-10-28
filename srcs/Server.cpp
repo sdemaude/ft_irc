@@ -6,7 +6,7 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:14 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 15:41:03 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/28 16:15:47 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,9 +27,12 @@ Server::Server(int port, std::string password) : _port(port), _password(password
 }
 
 Server::~Server() {
-	//TODO? close all the clients if the server is stopped
-
-	// Close the socket
+	// Close all the clients sockets
+	while (!this->_clients.empty()) {
+		close(this->_clients.begin()->second.getFd());
+		this->_clients.erase(this->_clients.begin());
+	}
+	// Close the server socket
 	close(this->_socket_fd);
 	std::cout << "Server socket closed" << std::endl;
 	std::cout << "Server stopped after receiving SIGINT" << std::endl;
@@ -394,8 +397,8 @@ int Server::init() {
 		return (perror("fcntl"), EXIT_FAILURE);
 
 	// Allow to reuse the port
-	int i = 1; //TODO change name
-	status = setsockopt(this->_socket_fd, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(int)); // TODO? add SO_REUSEPORT if needed
+	int reuse_addr = 1;
+	status = setsockopt(this->_socket_fd, SOL_SOCKET, SO_REUSEADDR, &reuse_addr, sizeof(int)); // TODO? add SO_REUSEPORT if needed
 	if (status == -1)
 		return (perror("setsockopt"), EXIT_FAILURE);
 

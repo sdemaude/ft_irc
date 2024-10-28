@@ -6,14 +6,11 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 14:55:14 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 15:27:14 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/28 16:18:59 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Server.hpp"
-
-//TODO Check before if the user is an operator in the MODE command
-//TODO Send the response to the user
 
 void    Server::mode_I(Client &client, Channel &channel) {
 	// Check if the channel is invite only
@@ -56,8 +53,6 @@ void    Server::mode_K(Client &client, Channel &channel, std::string &password) 
 	}
 }
 
-// string to client
-//TODO? check if the user exists
 void    Server::mode_O(Client &client, Channel &channel, Client &target) {
 	// Check if the target is already an operator in the channel
 	if (channel.getUsers().find(client) != channel.getUsers().end()) {
@@ -72,7 +67,6 @@ void    Server::mode_O(Client &client, Channel &channel, Client &target) {
 	}
 }
 
-// string to int
 void    Server::mode_L(Client &client, Channel &channel, int limit) {
 	// Set the limit of the channel
 	channel.setLimit(limit);
