@@ -6,7 +6,7 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:14 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 19:12:03 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/29 09:46:30 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -265,9 +265,10 @@ void	Server::parse_command(Client &client, std::string prefix, std::string comma
 
 			//TODO : add client to channel here if the channel does not exist
 			(*it).second.add_client(client);
-			client.getChannels().insert(std::pair<std::string, Channel>(channel.getName(), channel));
+			client.addChannel(channel_name);
+			//client.getChannels().insert(std::pair<std::string, Channel>(channel.getName(), channel));
 			std::string response = ":" + client.getId() + " JOIN " + channel.getName() + "\r\n";
-			channel.sendToOthers(response, client);
+			channel.sendToAll(response);
 			std::cout << "Client created and joined the channel" << std::endl;
 			return;
 		}

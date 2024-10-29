@@ -6,7 +6,7 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 10:11:43 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 18:05:43 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/29 09:31:29 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ void Channel::sendToAll(std::string &message) {
 	std::map<Client, int>::iterator it = this->_users.begin();
 	while (it != this->_users.end()) {
 		send(it->first.getFd(), message.c_str(), message.size(), 0);
+		std::cout << "Message sent to " << it->first.getNickname() << std::endl; // TODO remove
 		it++;
 	}
 }
@@ -47,9 +48,11 @@ void Channel::sendToAll(std::string &message) {
 // Send the message to all clients in the channel except the client
 void Channel::sendToOthers(std::string &message, Client &client) {
 	std::map<Client, int>::iterator it = this->_users.begin();
+	std::cout << "Size of users: " << this->_users.size() << std::endl; // TODO remove
 	while (it != this->_users.end()) {
 		if (it->first.getFd() != client.getFd()) {
 			send(it->first.getFd(), message.c_str(), message.size(), 0);
+			std::cout << "Message sent to " << it->first.getNickname() << std::endl; // TODO remove
 		}
 		it++;
 	}

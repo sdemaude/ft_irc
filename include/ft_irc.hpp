@@ -6,7 +6,7 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:14:40 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 16:42:58 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/29 09:23:14 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@
 #include <cstring>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 #include <sstream>

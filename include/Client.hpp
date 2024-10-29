@@ -6,7 +6,7 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 11:37:37 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 18:43:17 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/29 09:46:10 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,11 @@ class Client
 		void							setRegistered(bool registered);
 		bool							getRegistration() const;
 		void							setRegistration(bool registration);
-		std::map<std::string, Channel>	&getChannels();
+
+		void							addChannel(std::string &channel);
+		void							removeChannel(std::string &channel);
+		std::vector<std::string>		getChannels() const;
+		//std::map<std::string, Channel>	&getChannels();
 
 	private:
 		bool							_registered; // false by default (for the password)
@@ -53,7 +57,8 @@ class Client
 		std::string						_username;
 		std::string 					_hostname;
 		std::string						_realname;
-		std::map<std::string, Channel>	_channels;
+		std::vector<std::string>		_channels;
+		//std::map<std::string, Channel>	_channels;
 };
 
 bool operator<(const Client &a, const Client &b);
