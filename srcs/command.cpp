@@ -3,28 +3,28 @@
 /*                                                        :::      ::::::::   */
 /*   command.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
+/*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 12:52:50 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/29 14:51:07 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/29 19:59:48 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ft_irc.hpp"
 
 // Command list:
-// PASS - Check the server password							OK
-// PING - Send a ping to the server							OK
-// NICK - Set the nickname									OK
-// USER - Set the username									OK
-// JOIN - Join a channel									KO
-// PART - Leave a channel									KO
-// PRIVMSG - Send a private message							OK
-// QUIT - Disconnect from the server						OK
-// KICK - Kick a user from a channel						X
-// INVITE - Invite a user to a channel						X
-// TOPIC - Set the topic of a channel						X
-// MODE - Change the mode of a channel (I, T, K, O, L)		X
+// PASS - Check the server password
+// PING - Send a ping to the server
+// NICK - Set the nickname
+// USER - Set the username
+// JOIN - Join a channel
+// PART - Leave a channel
+// PRIVMSG - Send a private message
+// QUIT - Disconnect from the server
+// KICK - Kick a user from a channel
+// INVITE - Invite a user to a channel
+// TOPIC - Set the topic of a channel
+// MODE - Change the mode of a channel (I, T, K, O, L)
 
 void	Server::ping(Client &client) {
 	// Send a PONG response to the client
@@ -62,9 +62,9 @@ void	Server::nick(Client &client, std::string &nickname) {
 			}
 			it++;
 		}
-		client.setNickname(nickname);
-		std::string response = ":" + client.getId() + " NICK " + nickname + "\r\n";
+		std::string response = ":" + client.getId() + " NICK :" + nickname + "\r\n";
 		send(client.getFd(), response.c_str(), response.size(), 0);
+		client.setNickname(nickname);
 		std::cout << "Nickname set" << std::endl;
 	} else { 
 		// Check if the nickname is already taken and send an error message to the client if it is
@@ -78,18 +78,15 @@ void	Server::nick(Client &client, std::string &nickname) {
 			}
 			it++;
 		}
-		client.setNickname(nickname);
-		std::string response = ":" + client.getId() + " NICK " + nickname + "\r\n";
-		// Send the new nickname to all the clients in the channels
-		//TODO
-		for (size_t i = 0; i < client.getChannels().size(); i++) {
-			this->_channels[client.getChannels()[0]]->sendToAll(response);
-		}
-		/*std::map<std::string, Channel>::iterator it2 = client.getChannels().begin();
-		while (it2 != client.getChannels().end()) {
-			it2->second.sendToAll(response);
+		// If the nickname is not taken, set the nickname and send a NICK message to all the clients
+		std::string response = ":" + client.getId() + " NICK :" + nickname + "\r\n";
+		std::map<int, Client *>::iterator it2 = this->_clients.begin();
+		while (it2 != this->_clients.end()) {
+			std::string response = ":" + client.getId() + " NICK :" + nickname + "\r\n";
+			send(it2->second->getFd(), response.c_str(), response.size(), 0);
 			it2++;
-		}*/
+		}
+		client.setNickname(nickname);
 		std::cout << "Nickname changed" << std::endl;
 	}
 }
@@ -122,27 +119,24 @@ void	Server::user(Client &client, std::string &username, std::string &hostname, 
 	}
 }
 
-
-// For all the functions below, check if the client is registered before executing the command
-
 void	Server::join(Client &client, Channel &channel, std::string &password) {
 	std::string channel_name = channel.getName();
 	// Check if the channel is full
-	if ((int)channel.getUsers().size() <= channel.getLimit()) {
+	if (channel.getLimit() != -1 && (int)channel.getUsers().size() >= channel.getLimit()) {
 		std::string response = ":server 471 " + client.getNickname() + " " + channel.getName() + " :Cannot join channel (+l)\r\n";
 		send(client.getFd(), response.c_str(), response.size(), 0);
 	} else if (channel.getUsers().find(&client) != channel.getUsers().end()) {
 		// Check if the client is already in the channel
-		std::string response = ":server 443 " + client.getNickname() + " " + channel.getName() + " :is already in channel\r\n";
+		std::string response = ":server 443 " + channel.getName() + " " + client.getNickname() + " :is already in channel\r\n";
 		send(client.getFd(), response.c_str(), response.size(), 0);
 	} else if (channel.getPassword() != "") {
 		// Check if the channel has a password
-		if (password == channel.getPassword()) {
+		if (!password.empty() && password == channel.getPassword()) {
 			channel.add_client(client);
 			client.addChannel(channel_name);
 			//client.getChannels().insert(std::pair<std::string, Channel>(channel.getName(), channel));
 			std::string response = ":" + client.getId() + " JOIN " + channel.getName() + "\r\n";
-			channel.sendToOthers(response, client);
+			channel.sendToAll(response);
 		} else {
 			std::string response = ":server 475 " + client.getNickname() + " " + channel.getName() + " :Bad channel key\r\n";
 			send(client.getFd(), response.c_str(), response.size(), 0);
@@ -156,21 +150,22 @@ void	Server::join(Client &client, Channel &channel, std::string &password) {
 				channel.add_client(client);
 				channel.getWaitList().erase(it);
 				client.addChannel(channel_name);
-				//client.getChannels().insert(std::pair<std::string, Channel>(channel.getName(), channel));
 				std::string response = ":" + client.getId() + " JOIN " + channel.getName() + "\r\n";
-				channel.sendToOthers(response, client);
+				channel.sendToAll(response);
 				std::cout << "Client joined the channel" << std::endl;
 				return;
 			}
 			it++;
 		}
+		// If the client is not invited, add it to the wait list
+		std::string response = ":server 473 " + client.getNickname() + " " + channel.getName() + " :Cannot join channel (+i)\r\n";
+		send(client.getFd(), response.c_str(), response.size(), 0);
 	} else {
 		// If the channel is not invite only and does not have a password, add the client to the channel
 		channel.add_client(client);
 		client.addChannel(channel_name);
-		//client.getChannels().insert(std::pair<std::string, Channel>(channel.getName(), channel));
 		std::string response = ":" + client.getId() + " JOIN " + channel.getName() + "\r\n";
-		channel.sendToOthers(response, client);
+		channel.sendToAll(response);
 		std::cout << "Client joined the channel" << std::endl;
 	}
 }
@@ -185,11 +180,15 @@ void	Server::part(Client &client, Channel &channel) {
 		// If the client is in the channel, remove it
 		channel.remove_client(client);
 		client.removeChannel(channel_name);
-		//client.getChannels().erase(channel.getName());
 		std::string response = ":" + client.getId() + " PART " + channel.getName() + "\r\n";
 		send(client.getFd(), response.c_str(), response.size(), 0);
-		channel.sendToOthers(response, client);
+		channel.sendToAll(response);
 		std::cout << "Client left the channel" << std::endl;
+		if (channel.getUsers().size() == 0) {
+			// If the channel is empty, remove it
+			delete &channel;
+			this->_channels.erase(channel_name);
+		}
 	}
 }
 
@@ -208,7 +207,7 @@ void	Server::privmsg(Client &client, std::string &target, std::string &message) 
 		} else {
 			// Send the message to all the clients in the channel
 			std::string response = ":" + client.getId() + " PRIVMSG " + target + " :" + message + "\r\n";
-			this->_channels[target]->sendToOthers(response, client); // TODO it doesn't send to the new client
+			this->_channels[target]->sendToOthers(response, client);
 		}
 	} else {
 		// If the target is a client, send the message to the target client
@@ -238,38 +237,25 @@ void	Server::quit(Client &client) {
 			this->_channels[client.getChannels()[0]]->remove_client(client);
 			// If the channel is empty, remove it
 			if (this->_channels[client.getChannels()[0]]->getUsers().size() == 0) {
+				delete this->_channels[client.getChannels()[0]];
 				this->_channels.erase(client.getChannels()[0]);
+			} else {
+				client.removeChannel(client.getChannels()[0]);
 			}
-			client.removeChannel(client.getChannels()[0]);
 		}
 	}
-
-	/*if (client.getChannels().size() > 0) {
-		std::map<std::string, Channel>::iterator it = client.getChannels().begin();
-		while (it != client.getChannels().end()) {
-			// Send a QUIT message to all the clients in the channel
-			std::string response = ":" + client.getId() + " QUIT :Leaving\r\n";
-			it->second.sendToAll(response);
-			it->second.remove_client(client);
-			// If the channel is empty, remove it
-			if (it->second.getUsers().size() == 0) {
-				this->_channels.erase(it->first);
-			}
-			it++;
-		}
-	}*/
 	// Close the client socket and remove it from the clients map
 	close(client.getFd());
-	this->_clients.erase(client.getFd());
 	std::cout << "Client disconnected" << std::endl;
 }
 
-
-// Check if the client is an operator for all the functions below
-
 void	Server::kick(Client &client, Channel &channel, Client &target) {
 	// Check if the client is an operator
-	if (channel.getUsers().find(&client) == channel.getUsers().end()) { //TODO
+	std::map<Client *, int>::iterator it = channel.getUsers().find(&client);
+	if (it == channel.getUsers().end()) {
+		std::string response = ":server 442 " + client.getNickname() + " " + channel.getName() + " :You're not on that channel\r\n";
+		send(client.getFd(), response.c_str(), response.size(), 0);
+	} else if (it->second == 0) {
 		std::string response = ":server 482 " + client.getNickname() + " " + channel.getName() + " :You're not channel operator\r\n";
 		send(client.getFd(), response.c_str(), response.size(), 0);
 	} else if (channel.getUsers().find(&target) == channel.getUsers().end()) {
@@ -279,7 +265,6 @@ void	Server::kick(Client &client, Channel &channel, Client &target) {
 	} else {
 		// If the client is in the channel, remove it
 		channel.remove_client(target);
-		//client.getChannels().erase(channel.getName());
 		std::string response = ":" + client.getId() + " KICK " + channel.getName() + " " + target.getNickname() + " :Kicked by " + client.getNickname() + "\r\n";
 		send(target.getFd(), response.c_str(), response.size(), 0);
 		channel.sendToAll(response);
@@ -288,7 +273,11 @@ void	Server::kick(Client &client, Channel &channel, Client &target) {
 
 void	Server::invite(Client &client, Channel &channel, Client &target) {
 	// Check if the client is an operator
-	if (channel.getUsers().find(&client) == channel.getUsers().end()) { //TODO
+	std::map<Client *, int>::iterator it = channel.getUsers().find(&client);
+	if (it == channel.getUsers().end()) {
+		std::string response = ":server 442 " + client.getNickname() + " " + channel.getName() + " :You're not on that channel\r\n";
+		send(client.getFd(), response.c_str(), response.size(), 0);
+	} else if (it->second == 0) {
 		std::string response = ":server 482 " + client.getNickname() + " " + channel.getName() + " :You're not channel operator\r\n";
 		send(client.getFd(), response.c_str(), response.size(), 0);
 	} else if (!channel.getInviteOnly()) {
@@ -310,12 +299,16 @@ void	Server::invite(Client &client, Channel &channel, Client &target) {
 	}
 }
 
-void	Server::topic(Client &client, Channel &channel, std::string &topic) {
+void	Server::topic(Client &client, Channel &channel, std::string &topic, bool view_topic) {
 	// Check if the client is an operator
-	if (channel.getUsers().find(&client) == channel.getUsers().end()) { //TODO
+	std::map<Client *, int>::iterator it = channel.getUsers().find(&client);
+	if (it == channel.getUsers().end()) {
+		std::string response = ":server 442 " + client.getNickname() + " " + channel.getName() + " :You're not on that channel\r\n";
+		send(client.getFd(), response.c_str(), response.size(), 0);
+	} else if (it->second == 0) {
 		std::string response = ":server 482 " + client.getNickname() + " " + channel.getName() + " :You're not channel operator\r\n";
 		send(client.getFd(), response.c_str(), response.size(), 0);
-	} else if (topic == "") {
+	} else if (view_topic) {
 		// If the topic is empty, send the topic to the client
 		if (channel.getTopic() == "") {
 			std::string response = ":server 331 " + client.getNickname() + " " + channel.getName() + " :No topic is set\r\n";
@@ -324,19 +317,32 @@ void	Server::topic(Client &client, Channel &channel, std::string &topic) {
 			std::string response = ":server 332 " + client.getNickname() + " " + channel.getName() + " :" + channel.getTopic() + "\r\n";
 			send(client.getFd(), response.c_str(), response.size(), 0);
 		}
+	} else if (channel.getTopicLock()) {
+		// Check if the topic is locked
+		std::string response = ":server 482 " + client.getNickname() + " " + channel.getName() + " :You're not channel operator\r\n";
+		send(client.getFd(), response.c_str(), response.size(), 0);
+	} else if (topic == "") {
+		// If the topic is empty, remove the topic
+		channel.setTopic(topic);
+		std::string response = ":" + client.getId() + " TOPIC " + channel.getName() + " :" + topic + "\r\n";
+		send(client.getFd(), response.c_str(), response.size(), 0);
+		channel.sendToOthers(response, client);
 	} else {
 		// If the topic is not empty, set the topic
 		channel.setTopic(topic);
 		std::string response = ":" + client.getId() + " TOPIC " + channel.getName() + " :" + topic + "\r\n";
 		send(client.getFd(), response.c_str(), response.size(), 0);
-		channel.sendToAll(response);
+		channel.sendToOthers(response, client);
 	}
 }
 
-void	Server::mode(Client &client, Channel &channel, char mode, std::string &parameter) {
+void	Server::mode(Client &client, Channel &channel, char mode, std::string &parameter, bool set) {
 	// Check if the client is an operator using the value of the map at the client key
-	
-	if (channel.getUsers().find(&client) == channel.getUsers().end()) { //TODO
+	std::map<Client *, int>::iterator it = channel.getUsers().find(&client);
+	if (it == channel.getUsers().end()) {
+		std::string response = ":server 442 " + client.getNickname() + " " + channel.getName() + " :You're not on that channel\r\n";
+		send(client.getFd(), response.c_str(), response.size(), 0);
+	} else if (it->second == 0) {
 		std::string response = ":server 482 " + client.getNickname() + " " + channel.getName() + " :You're not channel operator\r\n";
 		send(client.getFd(), response.c_str(), response.size(), 0);
 	} else {
@@ -357,7 +363,7 @@ void	Server::mode(Client &client, Channel &channel, char mode, std::string &para
 				std::map<int, Client *>::iterator it = this->_clients.find(target_fd);
 				while (it != this->_clients.end()) {
 					if (it->first == target_fd) {
-						mode_O(client, channel, *it->second);
+						mode_O(client, channel, *it->second, set);
 						break;
 					}
 					it++;

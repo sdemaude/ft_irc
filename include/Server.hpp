@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
+/*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:37 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/29 10:37:11 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/29 19:54:19 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,16 +42,14 @@ class Server {
 		void		quit(Client &client);
 		void		kick(Client &client, Channel &channel,  Client &target);
 		void		invite(Client &client, Channel &channel, Client &target);
-		void		topic(Client &client, Channel &channel, std::string &topic);
-		void		mode(Client &client, Channel &channel, char mode, std::string &parameter);
+		void		topic(Client &client, Channel &channel, std::string &topic, bool view_topic);
+		void		mode(Client &client, Channel &channel, char mode, std::string &parameter, bool set);
 		// Mode
 		void		mode_I(Client &client, Channel &channel);
 		void		mode_T(Client &client, Channel &channel, std::string &topic);
 		void		mode_K(Client &client, Channel &channel, std::string &password);
-		void		mode_O(Client &client, Channel &channel, Client &target);
+		void		mode_O(Client &client, Channel &channel, Client &target, bool set);
 		void		mode_L(Client &client, Channel &channel, int limit);
-		
-		//std::string getIpAdress() const;
 
 	private:
 		static bool							_running;

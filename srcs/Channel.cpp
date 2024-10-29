@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
+/*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 10:11:43 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/29 12:32:11 by ccormon          ###   ########.fr       */
+/*   Updated: 2024/10/29 19:44:18 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Channel.hpp"
 
-Channel::Channel(std::string const &channel_name) : _invite_only(false), _limit(-1), _name(channel_name) {
+Channel::Channel(std::string const &channel_name) : _invite_only(false), _limit(-1), _topic_lock(false), _name(channel_name) {
 	this->_users = std::map<Client *, int>();
 	this->_wait_list = std::vector<Client *>();
 }
@@ -21,6 +21,7 @@ Channel::Channel(const Channel &other) {
 	this->_invite_only = other._invite_only;
 	this->_limit = other._limit;
 	this->_topic = other._topic;
+	this->_topic_lock = other._topic_lock;
 	this->_password = other._password;
 	this->_name = other._name;
 	this->_users = other._users;
@@ -43,9 +44,8 @@ void Channel::sendToAll(std::string &message) {
 void Channel::sendToOthers(std::string &message, Client &client) {
 	std::map<Client *, int>::iterator	it = this->_users.begin();
 	while (it != this->_users.end()) {
-		if (it->first->getFd() != client.getFd()) {
+		if (it->first->getFd() != client.getFd())
 			send(it->first->getFd(), message.c_str(), message.size(), 0);
-		}
 		it++;
 	}
 }
@@ -82,6 +82,14 @@ void Channel::setLimit(int limit) {
 	this->_limit = limit;
 }
 
+bool Channel::getTopicLock() const {
+	return this->_topic_lock;
+}
+
+void Channel::setTopicLock(bool topic_lock) {
+	this->_topic_lock = topic_lock;
+}
+
 std::string Channel::getName() const {
 	return this->_name;
 }
@@ -90,11 +98,11 @@ void Channel::setName(std::string const &name) {
 	this->_name = name;
 }
 
-std::map<Client *, int> Channel::getUsers() const {
+std::map<Client *, int> &Channel::getUsers() {
 	return this->_users;
 }
 
-std::vector<Client *> Channel::getWaitList() const {
+std::vector<Client *> &Channel::getWaitList() {
 	return this->_wait_list;
 }
 
@@ -111,6 +119,7 @@ void Channel::add_client(Client &client) {
 
 void Channel::remove_client(Client &client) {
 	if (this->_users.find(&client) != this->_users.end()) {
+		
 		this->_users.erase(&client);
 	}
 }

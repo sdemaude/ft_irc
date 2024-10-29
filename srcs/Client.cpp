@@ -6,7 +6,7 @@
 /*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 11:37:40 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/29 09:46:06 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/29 19:55:02 by sdemaude         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@ Client::Client(int fd, std::string ip_addr) : _fd(fd), _ip_addr(ip_addr) {
 	this->_hostname = "";
 	this->_realname = "";
 	this->_buffer = "";
-	//this->_channels = std::map<std::string, Channel>();
 }
 
 Client::Client(const Client &other) {
@@ -33,11 +32,10 @@ Client::Client(const Client &other) {
 	this->_realname = other._realname;
 	this->_registered = other._registered;
 	this->_registration = other._registration;
-	//this->_channels = other._channels;
 }
 
 Client::~Client() {
-	//close(this->_fd);
+	close(this->_fd);
 }
 
 std::string	Client::get_buffer() {
@@ -78,11 +76,11 @@ void Client::setUsername(std::string &user) {
 }
 
 std::string Client::getHostname() const {
-	return (this->_ip_addr);
+	return (this->_hostname);
 }
 
 void Client::setHostname(std::string &hostname) {
-	this->_ip_addr = hostname;
+	this->_hostname = hostname;
 }
 
 std::string Client::getRealname() const {
@@ -109,10 +107,6 @@ void Client::setRegistration(bool registration) {
 	this->_registration = registration;
 }
 
-//std::map<std::string, Channel> &Client::getChannels() {
-//	return (this->_channels);
-//}
-
 void Client::addChannel(std::string &channel) {
 	this->_channels.push_back(channel);
 }
@@ -128,7 +122,7 @@ void Client::removeChannel(std::string &channel) {
 	}
 }
 
-std::vector<std::string> Client::getChannels() const {
+std::vector<std::string> &Client::getChannels() {
 	return (this->_channels);
 }
 
