@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 15:47:27 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/29 09:33:32 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/29 12:14:22 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ class Client;
 class Channel
 {
 	public:
-		Channel();
+		Channel(std::string const &name);
 		Channel(const Channel &other);
 		~Channel();
 
@@ -36,8 +36,8 @@ class Channel
 		void					setLimit(int limit);
 		std::string				getName() const;
 		void					setName(std::string const &name);
-		std::map<Client, int>	getUsers() const;
-		std::vector<Client>		getWaitList() const;
+		std::map<Client *, int>	getUsers() const;
+		std::vector<Client *>		getWaitList() const;
 
 		void					add_waitlist(Client &client);
 
@@ -45,11 +45,11 @@ class Channel
 		void					remove_client(Client &client);
 
 	private:
-		bool					_invite_only;	// false by default
-		int						_limit; 		// -1 if no limit
-		std::string				_topic;			// Topic of the channel (can be empty if no topic)
-		std::string				_password;		// Password of the channel (can be empty if no password)
-		std::string				_name;			// #channel
-		std::vector<Client>		_wait_list;		// List of clients waiting to join the channel (invite only)
-		std::map<Client, int>	_users;			// List of users and their status (operator or not)
+		bool						_invite_only;	// false by default
+		int							_limit; 		// -1 if no limit
+		std::string					_topic;			// Topic of the channel (can be empty if no topic)
+		std::string					_password;		// Password of the channel (can be empty if no password)
+		std::string					_name;			// #channel
+		std::vector<Client *>		_wait_list;		// List of clients waiting to join the channel (invite only)
+		std::map<Client *, int>		_users;			// List of users and their status (operator or not)
 };

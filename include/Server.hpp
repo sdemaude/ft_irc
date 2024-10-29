@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:37 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 16:43:18 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/29 10:37:11 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,12 +54,12 @@ class Server {
 		//std::string getIpAdress() const;
 
 	private:
-		static bool						_running;
-		int								_socket_fd;
-		int								_epoll_fd;
-		short							_port;
-		struct sockaddr_in				_addr;
-		std::string						_password;
-		std::map<int, Client>			_clients;
-		std::map<std::string, Channel>	_channels;
+		static bool							_running;
+		int									_socket_fd;
+		int									_epoll_fd;
+		short								_port;
+		struct sockaddr_in					_addr;
+		std::string							_password;
+		std::map<int, Client *>				_clients;
+		std::map<std::string, Channel *>	_channels;
 };

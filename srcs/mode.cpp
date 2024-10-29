@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   mode.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 14:55:14 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/28 16:18:59 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/29 11:03:26 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Server.hpp"
 
-void    Server::mode_I(Client &client, Channel &channel) {
+void	Server::mode_I(Client &client, Channel &channel) {
 	// Check if the channel is invite only
 	if (channel.getInviteOnly()) {
 		channel.setInviteOnly(false);
@@ -26,7 +26,7 @@ void    Server::mode_I(Client &client, Channel &channel) {
 	}
 }
 
-void   Server::mode_T(Client &client, Channel &channel, std::string &topic) {
+void	Server::mode_T(Client &client, Channel &channel, std::string &topic) {
 	// Set the topic of the channel
 	if (channel.getTopic() == "") {
 		channel.setTopic(topic);
@@ -40,7 +40,7 @@ void   Server::mode_T(Client &client, Channel &channel, std::string &topic) {
 	}
 }
 
-void    Server::mode_K(Client &client, Channel &channel, std::string &password) {
+void	Server::mode_K(Client &client, Channel &channel, std::string &password) {
 	// Set the password of the channel
 	channel.setPassword(password);
 	if (password != "") {
@@ -53,21 +53,21 @@ void    Server::mode_K(Client &client, Channel &channel, std::string &password) 
 	}
 }
 
-void    Server::mode_O(Client &client, Channel &channel, Client &target) {
+void	Server::mode_O(Client &client, Channel &channel, Client &target) {
 	// Check if the target is already an operator in the channel
-	if (channel.getUsers().find(client) != channel.getUsers().end()) {
-		channel.getUsers().at(client) = 0;
+	if (channel.getUsers().find(&client) != channel.getUsers().end()) {
+		channel.getUsers().at(&client) = 0;
 		std::string response = ":" + client.getId() + " MODE " + channel.getName() + " -o " + target.getNickname() + "\r\n";
 		channel.sendToAll(response);
 	} else {
 		// If the target is not an operator in the channel, add it
-		channel.getUsers().at(client) = 1;
+		channel.getUsers().at(&client) = 1;
 		std::string response = ":" + client.getId() + " MODE " + channel.getName() + " +o " + target.getNickname() + "\r\n";
 		channel.sendToAll(response);
 	}
 }
 
-void    Server::mode_L(Client &client, Channel &channel, int limit) {
+void	Server::mode_L(Client &client, Channel &channel, int limit) {
 	// Set the limit of the channel
 	channel.setLimit(limit);
 	// If there is a limit parameter add it to the channel
