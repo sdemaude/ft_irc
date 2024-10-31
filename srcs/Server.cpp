@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:41:14 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/29 20:05:06 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/30 09:07:11 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -327,8 +327,8 @@ void	Server::parse_command(Client &client, std::string prefix, std::string comma
 			return;
 		}
 
-		std::string						target_nick = splitted_params[1];
-		std::string						channel_name = splitted_params[0];
+		std::string							target_nick = splitted_params[1];
+		std::string							channel_name = splitted_params[0];
 		std::map<int, Client *>::iterator	it_target = this->_clients.find(getFdByNickname(target_nick));
 
 		if (it_target == this->_clients.end()) {

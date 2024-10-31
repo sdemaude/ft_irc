@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   command.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sdemaude <sdemaude@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ccormon <ccormon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 12:52:50 by sdemaude          #+#    #+#             */
-/*   Updated: 2024/10/29 19:59:48 by sdemaude         ###   ########.fr       */
+/*   Updated: 2024/10/30 10:06:28 by ccormon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,18 +129,6 @@ void	Server::join(Client &client, Channel &channel, std::string &password) {
 		// Check if the client is already in the channel
 		std::string response = ":server 443 " + channel.getName() + " " + client.getNickname() + " :is already in channel\r\n";
 		send(client.getFd(), response.c_str(), response.size(), 0);
-	} else if (channel.getPassword() != "") {
-		// Check if the channel has a password
-		if (!password.empty() && password == channel.getPassword()) {
-			channel.add_client(client);
-			client.addChannel(channel_name);
-			//client.getChannels().insert(std::pair<std::string, Channel>(channel.getName(), channel));
-			std::string response = ":" + client.getId() + " JOIN " + channel.getName() + "\r\n";
-			channel.sendToAll(response);
-		} else {
-			std::string response = ":server 475 " + client.getNickname() + " " + channel.getName() + " :Bad channel key\r\n";
-			send(client.getFd(), response.c_str(), response.size(), 0);
-		}
 	} else if (channel.getInviteOnly()) {
 		// Check if the channel is invite only
 		std::vector<Client *>::iterator it = channel.getWaitList().begin();
@@ -160,6 +148,18 @@ void	Server::join(Client &client, Channel &channel, std::string &password) {
 		// If the client is not invited, add it to the wait list
 		std::string response = ":server 473 " + client.getNickname() + " " + channel.getName() + " :Cannot join channel (+i)\r\n";
 		send(client.getFd(), response.c_str(), response.size(), 0);
+	} else if (channel.getPassword() != "") {
+		// Check if the channel has a password
+		if (!password.empty() && password == channel.getPassword()) {
+			channel.add_client(client);
+			client.addChannel(channel_name);
+			//client.getChannels().insert(std::pair<std::string, Channel>(channel.getName(), channel));
+			std::string response = ":" + client.getId() + " JOIN " + channel.getName() + "\r\n";
+			channel.sendToAll(response);
+		} else {
+			std::string response = ":server 475 " + client.getNickname() + " " + channel.getName() + " :Bad channel key\r\n";
+			send(client.getFd(), response.c_str(), response.size(), 0);
+		}
 	} else {
 		// If the channel is not invite only and does not have a password, add the client to the channel
 		channel.add_client(client);
